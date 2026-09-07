@@ -37,11 +37,11 @@
 - [x] 数据库：本地 Docker Compose 起 PostgreSQL，或直接注册 Supabase / Neon 云库
 - [x] Prisma：定义 schema（User / Member / Task / Standup），首次 migrate + seed
 - [x] `main.ts`：开启 CORS（白名单 localhost:3000）、全局 `ValidationPipe`、全局前缀 `/api`
-- [ ] 安装 `@repo/types` 并创建 Prisma ↔ 共享类型映射
+- [x] 安装 `@repo/types` 并创建 Prisma ↔ 共享类型映射
 
 ### 前端 (apps/web)
 
-- [ ] 安装依赖：`zustand`、`@tanstack/react-query`、`axios`、`zod`、`react-hook-form`、`@dnd-kit/core`、`tailwind-merge`、`clsx`
+- [x] 安装依赖：`zustand`、`@tanstack/react-query`、`axios`、`zod`、`react-hook-form`、`@dnd-kit/core`、`tailwind-merge`、`clsx`
 - [ ] 搭建 `lib/api-client.ts`（axios 实例 + JWT 拦截器）与 `lib/store.ts`（Zustand）
 - [ ] 接入 shadcn/ui（按钮、输入框、卡片、对话框、下拉等基础组件）
 - [ ] React Query Provider 挂载到根布局

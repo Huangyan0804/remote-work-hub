@@ -1,186 +1,240 @@
-这是为你量身定制的 **前后端分离架构（Next.js 前端 + Node.js/NestJS 独立后端）** 版本的 **Remote Desk Hub** 完整设计与模块划分文档。
+# Remote Work Hub — 项目设计与模块划分文档
 
-这份文档不仅明确了前后端的职责边界，还包含了**端到端 TypeScript 类型共享**与**跨域 JWT 鉴权**的规范，你可以直接保存为项目的开发指南。
-
----
-
-# 📄 Remote Desk Hub - 前后端分离架构设计与开发规范
+> 本文按仓库**当前真实代码结构**编写：所有「已落地」内容都能在仓库中找到对应文件；业务模块与接口属于**规划**，推进状态见 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)。
+> 最近一次代码结构同步：2026-09-07
 
 ## 1. 项目简介 (Overview)
 
-**Remote Desk Hub** 是一款专为异步沟通和分布式团队设计的轻量级工作台。项目旨在解决远程团队在**跨时区协作、任务状态透明化、异步进度汇报**等场景下的核心痛点。
+**Remote Work Hub** 是一款为异步沟通与分布式团队设计的轻量级远程协作工作台，解决**跨时区协作、任务状态透明化、异步进度汇报**场景下的核心痛点，用于展示**端到端 TypeScript 类型安全**、**JWT 跨域鉴权**、**NestJS 面向对象模块化后端**与 **Next.js 复杂 UI 交互**的综合全栈能力。
 
-- **架构模式：** 完全解耦的前后端分离架构（Decoupled Architecture）。
-- **主要目标：** 打造标准的企业级 RESTful API 服务与高性能现代前端 UI，展示 **端到端 TypeScript 类型安全**、**JWT 跨域鉴权**、**面向对象后端架构（NestJS）** 以及 **复杂 UI 交互（Next.js + Tailwind）** 的综合全栈能力。
+- **工程形态**：单仓库 pnpm monorepo（Turborepo 编排任务），前端 `apps/web` 与后端 `apps/api` 同库共存、前后端逻辑分离、可独立部署。
+- **当前进度**：阶段 0（基础设施与工程化）已基本完成——数据库 + Prisma 7、NestJS 骨架与健康检查、共享类型包已贯通；认证 / 团队 / 看板 / 日报 / 设置等业务模块处于规划中。
 
----
+## 2. 技术栈与实际状态 (Tech Stack & Status)
 
-## 2. 核心技术栈 (Tech Stack)
+### 前端 `apps/web`
 
-### 🖥️ 前端仓库 (`remote-work-hub-web`)
+| 领域        | 选型                                                               | 状态                                 |
+| ----------- | ------------------------------------------------------------------ | ------------------------------------ |
+| 框架        | Next.js 16 (App Router)                                            | 已实现脚手架（`src/app`）            |
+| 语言        | TypeScript                                                         | 已接入                               |
+| 样式        | Tailwind CSS v4（`@tailwindcss/postcss`）                          | 已接入（`globals.css`）              |
+| 状态/请求   | Zustand + TanStack Query                                           | 依赖已安装，Provider 与 store 未搭建 |
+| 表单校验    | React Hook Form + Zod                                              | 依赖已安装，未使用                   |
+| 拖拽        | `@dnd-kit/core`                                                    | 依赖已安装，未使用                   |
+| HTTP 客户端 | Axios                                                              | 依赖已安装，拦截器未搭建             |
+| UI 组件     | 规划 shadcn/ui；当前可先用 `@repo/ui` 基础组件（button/card/code） | 未接入                               |
 
-| 领域            | 选型                                       | 核心作用                                                                    |
-| --------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
-| **基础框架**    | **Next.js (App Router)**                   | 负责路由导航、SSR 落地页渲染与 SPA 客户端交互。                             |
-| **开发语言**    | **TypeScript**                             | 前端静态类型检查。                                                          |
-| **样式与UI**    | **Tailwind CSS + shadcn/ui**               | 原子化样式与高性能无障碍 UI 组件库。                                        |
-| **状态与请求**  | **Zustand + TanStack Query (React Query)** | Zustand 管理本地 UI 状态；React Query 管理 API 异步请求、缓存与自动刷刷新。 |
-| **HTTP 客户端** | **Axios / fetch 封装**                     | 处理 JWT Token 的自动注入与响应拦截器（Interceptor）。                      |
+### 后端 `apps/api`
 
-### ⚙️ 后端仓库 (`remote-work-hub-api`)
+| 领域         | 选型                                               | 状态                                        |
+| ------------ | -------------------------------------------------- | ------------------------------------------- |
+| 核心框架     | NestJS 12（模块化 + DI + Controller/Service）      | 骨架已实现（仅 AppController 健康检查）     |
+| ORM / 数据库 | Prisma 7 + PostgreSQL（本地 Docker `postgres:16`） | 已实现：schema + 迁移 + PrismaService       |
+| 安全与鉴权   | Passport.js + JWT + bcrypt                         | 依赖已安装，Guard / Strategy 未建（阶段 1） |
+| 参数校验     | class-validator + class-transformer                | 依赖已安装，全局 `ValidationPipe` 已开启    |
 
-| 领域             | 选型                                    | 核心作用                                                                 |
-| ---------------- | --------------------------------------- | ------------------------------------------------------------------------ |
-| **核心框架**     | **NestJS (Node.js)**                    | 基于 TypeScript 的企业级后端框架（模块化、依赖注入、控制器与服务分离）。 |
-| **ORM / 数据库** | **Prisma ORM + PostgreSQL**             | 类型安全的数据库查询与 Schema 迁移管理。                                 |
-| **安全与鉴权**   | **Passport.js + JWT + bcrypt**          | 用户注册密码哈希加密、JWT 签发与 API 路由守卫（Guards）。                |
-| **参数校验**     | **class-validator + class-transformer** | 后端 DTO (Data Transfer Object) 严格数据校验。                           |
+### 共享包 `packages/*`
 
----
+| 包                        | 选型                                       | 状态                                       |
+| ------------------------- | ------------------------------------------ | ------------------------------------------ |
+| `@repo/types`             | 前后端共享类型（契约层）                   | 已建立 `User` / `Task`，`Standup` 契约待补 |
+| `@repo/ui`                | 基础 UI 组件（button/card/code）           | turbo 模板组件，未被引用                   |
+| `@repo/typescript-config` | 共享 tsconfig（base/nextjs/react-library） | 已供各包使用                               |
+| `@repo/biome-config`      | Biome 代码规范配置                         | 已建立                                     |
 
-## 3. 前后端分离架构图 (System Architecture)
-
-```text
-┌────────────────────────────────────────────────────────┐
-│             前端客户端 (remote-work-hub-web)              │
-│   Next.js (App Router) + Tailwind CSS + React Query    │
-│                   托管平台: Vercel                     │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            │ HTTP / HTTPS (RESTful API + Bearer JWT Token)
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│             独立 API 后端 (remote-work-hub-api)           │
-│         NestJS (TypeScript) + Prisma ORM               │
-│                   托管平台: Render / Railway           │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            │ TCP / SQL (Prisma Client)
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│                 PostgreSQL 云数据库                     │
-│                 托管平台: Supabase / Neon              │
-└───────────────────────────┴────────────────────────────┘
-
-```
-
----
-
-## 4. 模块划分与 API 路由设计 (Modules & API Routes)
-
-### 模块 0：认证与鉴权模块 (Auth Module)
-
-> **职责：** 处理用户注册、登录、Token 颁发与身份验证。
-
-- **后端 (NestJS AuthModule):**
-- `POST /api/auth/register` - 用户注册（密码用 bcrypt 哈希存储）。
-- `POST /api/auth/login` - 校验凭证并返回 JWT Access Token 与 User 简信息。
-- `GET /api/auth/me` - 获取当前登录用户的详细 Profile（需带 Token）。
-
-- **前端实现：**
-- `AuthGuard` / 路由中间件：未登录状态拦截并重定向至 `/login`。
-- HTTP 请求拦截器：自动在 Request Header 中注入 `Authorization: Bearer <token>`。
-
----
-
-### 模块 1：团队与时区仪表盘 (Team & Timezone Module)
-
-> **职责：** 展示团队成员在线状态、计算跨时区重叠工作窗口（Overlap Hours）。
-
-- **后端 (NestJS TeamModule):**
-- `GET /api/members` - 获取团队成员列表及其当前状态、所在时区、工作时间段。
-- `PATCH /api/members/status` - 更新个人当前状态（_Online / Busy / Off-work_）与今日焦点（_Today's Focus_）。
-
-- **前端实现 (`/team` 页面):**
-- 时区计算助手（`Intl` API）：根据成员时区实时渲染对方的本地时间。
-- 重叠时间高亮组件：可视条形图展示不同时区的在线交集。
-
----
-
-### 模块 2：交互式看板模块 (Board & Task Module)
-
-> **职责：** Kanban 任务增删改查、跨列拖拽更新状态。
-
-- **后端 (NestJS TaskModule):**
-- `GET /api/tasks` - 获取所有任务列表（支持按 `status`, `priority`, `assigneeId` 过滤）。
-- `POST /api/tasks` - 创建新任务。
-- `PATCH /api/tasks/:id` - 更新任务详情（标题、描述、优先级、截止日期）。
-- `PATCH /api/tasks/:id/status` - 专用于拖拽放开后，快速修改任务状态（`TODO` -> `IN_PROGRESS` -> `DONE`）和排序权重（`order`）。
-- `DELETE /api/tasks/:id` - 删除任务。
-
-- **前端实现 (`/board` 页面):**
-- 使用 `@dnd-kit` 实现无缝拖拽。
-- 使用 **React Query 乐观更新（Optimistic Updates）**：拖拽放开的瞬间 UI 立刻变化，同时后台异步向后端发 `PATCH` 请求，若失败则回滚 UI。
-
----
-
-### 模块 3：异步日报生成器模块 (Standup Module)
-
-> **职责：** 收集每日进度、生成格式化文本与历史存档。
-
-- **后端 (NestJS StandupModule):**
-- `POST /api/standups` - 提交今日 Standup（昨日完成、今日计划、阻碍事项）。
-- `GET /api/standups` - 分页查询历史日报记录。
-- `GET /api/standups/today` - 获取团队今日所有已提交的日报列表。
-
-- **前端实现 (`/standup` 页面):**
-- Zod + React Hook Form 校验三段式表单。
-- 包含“一键导出 Markdown”与“一键复制 Slack 格式”按钮。
-
----
-
-### 模块 4：用户偏好与设置模块 (Settings Module)
-
-- **后端 (NestJS UserModule):**
-- `PATCH /api/users/profile` - 修改个人姓名、头像、工作时间范围（如 `09:00 - 18:00`）和默认时区。
-
-- **前端实现 (`/settings` 页面):**
-- 主题切换（Light / Dark Mode）。
-- 个人信息与时区修改表单。
-
----
-
-## 5. 项目工程结构规划 (Monorepo 或 独立双仓库)
-
-建议使用 **两个独立仓库**（最清晰、最容易独立部署）：
-
-### 📂 前端仓库结构 (`remote-work-hub-web`)
+## 3. 架构总览 (System Architecture)
 
 ```text
-src/
-├── app/                  # Next.js 路由
-│   ├── (auth)/login/     # 登录页
-│   ├── (dashboard)/      # 主控制台路由组
-│   │   ├── team/         # 团队时区页
-│   │   ├── board/        # 任务看板页
-│   │   └── standup/      # 异步日报页
-│   └── layout.tsx
-├── components/           # UI 组件 (ui/, board/, team/ 等)
-├── lib/
-│   ├── api-client.ts     # Axios/fetch 实例 (配置 BaseURL 与 JWT 拦截器)
-│   └── store.ts          # Zustand 本地 UI 状态
-├── services/             # React Query API 请求封装 (tasks.api.ts, team.api.ts)
-└── types/                # 前端类型声明
+┌──────────────────────────────────────────────┐
+│  apps/web  Next.js 16 (App Router)          │
+│  Tailwind v4 · 规划 React Query / Zustand   │
+└──────────────────────┬───────────────────────┘
+                       │ HTTP REST + Bearer JWT
+                       ▼
+┌──────────────────────────────────────────────┐
+│  apps/api  NestJS 12                         │
+│  全局前缀 /api · CORS 白名单 localhost:3000  │
+│  PrismaService (driver adapter: pg)          │
+└──────────────────────┬───────────────────────┘
+                       │ SQL (Prisma Client)
+                       ▼
+┌──────────────────────────────────────────────┐
+│  PostgreSQL 16（docker-compose 本地库）      │
+└──────────────────────────────────────────────┘
 
+共享契约层 @repo/types：两端只 import type，跨 HTTP 边界传递的公开字段。
 ```
 
-### 📂 后端仓库结构 (`remote-work-hub-api`)
+## 4. 仓库结构与定位 (Repo Layout)
 
 ```text
-src/
-├── modules/
-│   ├── auth/             # 认证模块 (Controller, Service, JWT Strategy, Guards)
-│   ├── users/            # 用户模块
-│   ├── tasks/            # 任务看板模块
-│   ├── team/             # 团队与时区模块
-│   └── standups/         # 日报模块
-├── prisma/
-│   └── schema.prisma     # 数据库 PostgreSQL 模型定义
-├── common/
-│   ├── decorators/       # 自定义装饰器 (如 @CurrentUser())
-│   └── filters/          # 全局 HTTP 异常捕获 (HttpExceptionFilter)
-└── main.ts               # 入口文件 (配置 CORS 白名单、全局 ValidationPipe)
-
+remote-work-hub/
+├── apps/
+│   ├── api/                       # NestJS 后端（默认端口 3001）
+│   │   ├── src/
+│   │   │   ├── main.ts            # 入口：全局前缀 /api、CORS、ValidationPipe
+│   │   │   ├── app.module.ts      # 根模块（ConfigModule + PrismaModule）
+│   │   │   ├── app.controller.ts  # GET /api/health 健康检查（真实查库）
+│   │   │   ├── prisma/            # PrismaModule / PrismaService（注入 pg adapter）
+│   │   │   └── generated/prisma/  # Prisma Client 生成产物，勿手改
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma      # 数据库模型唯一事实源（见 §5）
+│   │   │   └── migrations/        # 迁移历史（init / rename_member_status_to_user_status）
+│   │   ├── prisma.config.ts       # Prisma 7 CLI 配置（提供 DATABASE_URL）
+│   │   └── (未来模块目录)          # src/modules/{auth,users,tasks,team,standups}
+│   └── web/                       # Next.js 前端（默认端口 3000）
+│       └── src/app/
+│           ├── layout.tsx         # 根布局（Geist 字体，metadata 仍为模板默认值）
+│           ├── page.tsx           # 首页（create-next-app 模板页，待替换）
+│           ├── globals.css        # Tailwind v4 入口
+│           └── favicon.ico
+├── packages/
+│   ├── types/src/index.ts         # @repo/types：User/UserStatus/Task/TaskStatus/TaskPriority
+│   ├── ui/src/                    # @repo/ui：button.tsx / card.tsx / code.tsx
+│   ├── typescript-config/         # 共享 tsconfig（base/nextjs/react-library）
+│   └── biome-config/              # Biome 配置（base/next/react-internal）
+├── describe.md                    # 本文档：设计与模块规划
+├── DEVELOPMENT_PLAN.md            # 分阶段开发路线图（含完成勾选清单）
+├── README.md                      # 人类可读的项目 README
+├── docker-compose.yml             # 本地 PostgreSQL 16（库名 remote_work_hub）
+├── package.json / turbo.json      # 根任务编排（build/dev/lint/format/check-types）
+└── .trae/rules/                   # AI 项目规则（如 git 提交信息规范）
 ```
 
----
+> 注意：`apps/web` 下另有 `AGENTS.md` / `CLAUDE.md`，为 Next.js 自动生成与维护的版本提示文件，无需人工编辑。
+
+## 5. 数据库设计 (Data Model)
+
+以 [apps/api/prisma/schema.prisma](./apps/api/prisma/schema.prisma) 为唯一事实源，Prisma 7 将客户端生成到 `src/generated/prisma`。
+
+### 枚举
+
+| 枚举           | 取值                                                         |
+| -------------- | ------------------------------------------------------------ |
+| `UserStatus`   | `ONLINE` / `BUSY` / `OFFLINE`（默认 `OFFLINE`）              |
+| `TaskStatus`   | `TODO` / `IN_PROGRESS` / `IN_REVIEW` / `DONE`（默认 `TODO`） |
+| `TaskPriority` | `LOW` / `MEDIUM` / `HIGH`（默认 `MEDIUM`）                   |
+
+> 早期设计中存在 `OFF_WORK` 状态与独立 `Member` 表，已在迁移 `rename_member_status_to_user_status` 中合并进 `User`——**登录账号、个人资料、成员状态共用一张 `User` 表**，避免冗余。
+
+### 模型
+
+**User**（用户 = 账号 + 资料 + 成员状态）
+
+| 字段                          | 类型                               | 说明                        |
+| ----------------------------- | ---------------------------------- | --------------------------- |
+| id                            | `String @id @default(cuid())`      | 主键                        |
+| email                         | `String @unique`                   | 登录邮箱                    |
+| passwordHash                  | `String`                           | bcrypt 哈希，**不进契约层** |
+| name                          | `String`                           | 显示名                      |
+| avatarUrl                     | `String?`                          | 头像                        |
+| timezone                      | `String @default("Asia/Tokyo")`    | 时区                        |
+| workHoursStart / workHoursEnd | `String @default("09:00"/"18:00")` | 工作时间段                  |
+| status                        | `UserStatus @default(OFFLINE)`     | 当前状态                    |
+| focus                         | `String?`                          | 今日焦点                    |
+| createdAt / updatedAt         | `DateTime`                         | 审计字段                    |
+| tasks / standups              | 关系数组                           | 一对多                      |
+
+**Task**（看板任务）
+
+| 字段        | 类型                            | 说明                        |
+| ----------- | ------------------------------- | --------------------------- |
+| id          | `String @id @default(cuid())`   | 主键                        |
+| title       | `String`                        | 标题                        |
+| description | `String?`                       | 描述                        |
+| status      | `TaskStatus @default(TODO)`     | 看板列                      |
+| priority    | `TaskPriority @default(MEDIUM)` | 优先级                      |
+| order       | `Int @default(0)`               | 列内排序权重                |
+| dueDate     | `DateTime?`                     | 截止日期                    |
+| assigneeId  | `String?`                       | 负责人，`onDelete: SetNull` |
+
+索引：`@@index([status])`、`@@index([assigneeId])`。
+
+**Standup**（异步日报）
+
+| 字段              | 类型                          | 说明                        |
+| ----------------- | ----------------------------- | --------------------------- |
+| id                | `String @id @default(cuid())` | 主键                        |
+| yesterday / today | `String`                      | 昨日完成 / 今日计划         |
+| blockers          | `String?`                     | 阻碍事项                    |
+| date              | `DateTime @default(now())`    | 归属日期                    |
+| userId            | `String`                      | 提交人，`onDelete: Cascade` |
+
+索引：`@@index([userId, date])`。
+
+## 6. API 路由设计 (API Routes)
+
+后端统一 `setGlobalPrefix("api")`，即所有接口形如 `/api/xxx`；CORS 白名单当前为 `http://localhost:3000`。
+
+### 已实现
+
+| 方法 | 路径          | 用途                                                  |
+| ---- | ------------- | ----------------------------------------------------- |
+| GET  | `/api/health` | 探活，真实执行 `user.count()` 验证 Prisma + DB 全链路 |
+
+### 规划（对应 DEVELOPMENT_PLAN 阶段，均未实现）
+
+**阶段 1 · 认证与鉴权 Auth**
+
+| 方法 | 路径                 | 用途                                    |
+| ---- | -------------------- | --------------------------------------- |
+| POST | `/api/auth/register` | 注册（bcrypt 哈希入库）                 |
+| POST | `/api/auth/login`    | 校验凭证，签发 JWT + 用户简信息         |
+| GET  | `/api/auth/me`       | 当前用户 Profile（需 Token，JWT Guard） |
+
+**阶段 2 · 团队与时区 Team**
+
+| 方法  | 路径                  | 用途                                            |
+| ----- | --------------------- | ----------------------------------------------- |
+| GET   | `/api/members`        | 成员列表（状态 / 时区 / 工作时间段）            |
+| PATCH | `/api/members/status` | 更新本人状态（`ONLINE/BUSY/OFFLINE`）与今日焦点 |
+
+**阶段 3 · 任务看板 Task**
+
+| 方法   | 路径                    | 用途                                               |
+| ------ | ----------------------- | -------------------------------------------------- |
+| GET    | `/api/tasks`            | 任务列表（可按 `status/priority/assigneeId` 过滤） |
+| POST   | `/api/tasks`            | 新建任务                                           |
+| PATCH  | `/api/tasks/:id`        | 更新详情（标题/描述/优先级/截止日期）              |
+| PATCH  | `/api/tasks/:id/status` | 拖拽落位后更新状态与排序（`order`）                |
+| DELETE | `/api/tasks/:id`        | 删除任务                                           |
+
+**阶段 4 · 异步日报 Standup**
+
+| 方法 | 路径                  | 用途                           |
+| ---- | --------------------- | ------------------------------ |
+| POST | `/api/standups`       | 提交今日日报（昨日/今日/阻碍） |
+| GET  | `/api/standups`       | 分页历史                       |
+| GET  | `/api/standups/today` | 团队今日提交列表               |
+
+**阶段 5 · 用户偏好 Settings**
+
+| 方法  | 路径                 | 用途                              |
+| ----- | -------------------- | --------------------------------- |
+| PATCH | `/api/users/profile` | 修改姓名/头像/工作时间段/默认时区 |
+
+### 前端页面规划
+
+登录注册 `/login` `/register`（Auth Guard 保护，401 自动跳转）、团队时区 `/team`、任务看板 `/board`（`@dnd-kit` 拖拽 + React Query 乐观更新）、异步日报 `/standup`、设置 `/settings`。**当前 `src/app` 仅有模板首页，以上页面均未创建。**
+
+## 7. 鉴权与跨域规范（规划）
+
+- 后端：Passport JWT Strategy + Guard 保护业务路由；`bcrypt` 存密码哈希；DTO 经全局 `ValidationPipe`（`whitelist + transform`）校验。
+- 前端：Axios 拦截器自动注入 `Authorization: Bearer <token>`；401 时清除登录态并跳转登录页；Zustand 持久化登录态。
+
+## 8. 端到端类型安全与开发约束
+
+1. `@repo/types`（[packages/types/src/index.ts](./packages/types/src/index.ts)）是前后端共享的**契约层**：入口为原始 TS，只通过 `import type` 引入，不参与运行时打包。
+2. 契约 ≠ 数据库字段照搬：只放跨 HTTP 边界传输的公开字段——去掉 `passwordHash`、关系数组；`DateTime` 转 ISO `string`；可空列写作 `field: string | null`（区分「可选」与「可空」两种 JSON 语义）。
+3. 枚举需与 `schema.prisma` 双处同步：`UserStatus`、`TaskStatus`、`TaskPriority`（当前 `User` / `Task` 已对齐，`Standup` 契约待阶段 4 补充）。
+4. 一旦 api / web `import type` 了 `@repo/types`，改动契约会使 turbo 缓存失效、两端一起重跑，类型不同步会在 `pnpm check-types` 立即报红。
+5. 修改 `schema.prisma` 后执行迁移 + `db:generate`，再跑全仓 `pnpm check-types`。
+
+常用命令（根目录）：`pnpm dev`（全量）、`pnpm dev --filter=api|web`、`pnpm build`、`pnpm check-types`；数据库 `docker compose up -d`；迁移在 `apps/api` 下 `pnpm db:migrate --name <说明>`。
+
+## 9. 相关文档
+
+- [README.md](./README.md) — 项目总览与快速开始
+- [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) — 分阶段实施路线图与验收清单
+- [AGENTS.md](./AGENTS.md) — 面向 AI 的代码定位索引
