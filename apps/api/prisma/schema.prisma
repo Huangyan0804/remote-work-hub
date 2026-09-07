@@ -1,11 +1,13 @@
 // prisma/schema.prisma
+// Prisma 7：新生成器，客户端代码输出到 src/generated/prisma（不装进 node_modules）
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
+// Prisma 7：datasource 不再写 url，连接串由 prisma.config.ts 提供
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // 成员状态（与 packages/types 里 @repo/types 保持一致）
