@@ -7,7 +7,11 @@
     "build": "nest build",
     "start:dev": "nest start --watch",
     "dev": "nest start --watch",
-    "start:prod": "node ."
+    "start:prod": "node .",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",

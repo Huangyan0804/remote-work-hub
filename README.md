@@ -105,6 +105,21 @@ pnpm check-types
 - 前端：http://localhost:3000
 - API 健康检查：http://localhost:3001
 
+### 数据库与迁移
+
+```bash
+# 1. 启动本地 PostgreSQL（在仓库根目录执行）
+docker compose up -d
+
+# 2. Prisma 常用命令（在 apps/api 目录执行；也可在根目录加 --filter api 前缀）
+pnpm db:migrate --name <迁移说明>   # 修改 schema 后执行：生成迁移 + 同步表结构 + 重新生成客户端
+pnpm db:generate                   # 只重新生成 Prisma Client
+pnpm db:studio                     # 打开可视化数据库管理界面
+pnpm db:migrate:deploy             # 生产部署时使用：只应用已提交的迁移文件
+```
+
+> 在仓库根目录执行示例：`pnpm --filter api db:migrate --name init`
+
 ## 环境变量
 
 ```bash
