@@ -33,7 +33,7 @@ export type UserMinAggregateOutputType = {
   timezone: string | null
   workHoursStart: string | null
   workHoursEnd: string | null
-  status: $Enums.MemberStatus | null
+  status: $Enums.UserStatus | null
   focus: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -48,7 +48,7 @@ export type UserMaxAggregateOutputType = {
   timezone: string | null
   workHoursStart: string | null
   workHoursEnd: string | null
-  status: $Enums.MemberStatus | null
+  status: $Enums.UserStatus | null
   focus: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -198,7 +198,7 @@ export type UserGroupByOutputType = {
   timezone: string
   workHoursStart: string
   workHoursEnd: string
-  status: $Enums.MemberStatus
+  status: $Enums.UserStatus
   focus: string | null
   createdAt: Date
   updatedAt: Date
@@ -234,7 +234,7 @@ export type UserWhereInput = {
   timezone?: Prisma.StringFilter<"User"> | string
   workHoursStart?: Prisma.StringFilter<"User"> | string
   workHoursEnd?: Prisma.StringFilter<"User"> | string
-  status?: Prisma.EnumMemberStatusFilter<"User"> | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   focus?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -271,7 +271,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   timezone?: Prisma.StringFilter<"User"> | string
   workHoursStart?: Prisma.StringFilter<"User"> | string
   workHoursEnd?: Prisma.StringFilter<"User"> | string
-  status?: Prisma.EnumMemberStatusFilter<"User"> | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   focus?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -309,7 +309,7 @@ export type UserScalarWhereWithAggregatesInput = {
   timezone?: Prisma.StringWithAggregatesFilter<"User"> | string
   workHoursStart?: Prisma.StringWithAggregatesFilter<"User"> | string
   workHoursEnd?: Prisma.StringWithAggregatesFilter<"User"> | string
-  status?: Prisma.EnumMemberStatusWithAggregatesFilter<"User"> | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   focus?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -324,7 +324,7 @@ export type UserCreateInput = {
   timezone?: string
   workHoursStart?: string
   workHoursEnd?: string
-  status?: $Enums.MemberStatus
+  status?: $Enums.UserStatus
   focus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -341,7 +341,7 @@ export type UserUncheckedCreateInput = {
   timezone?: string
   workHoursStart?: string
   workHoursEnd?: string
-  status?: $Enums.MemberStatus
+  status?: $Enums.UserStatus
   focus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -358,7 +358,7 @@ export type UserUpdateInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -375,7 +375,7 @@ export type UserUncheckedUpdateInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -392,7 +392,7 @@ export type UserCreateManyInput = {
   timezone?: string
   workHoursStart?: string
   workHoursEnd?: string
-  status?: $Enums.MemberStatus
+  status?: $Enums.UserStatus
   focus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -407,7 +407,7 @@ export type UserUpdateManyMutationInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -422,7 +422,7 @@ export type UserUncheckedUpdateManyInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -491,8 +491,8 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
-export type EnumMemberStatusFieldUpdateOperationsInput = {
-  set?: $Enums.MemberStatus
+export type EnumUserStatusFieldUpdateOperationsInput = {
+  set?: $Enums.UserStatus
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -538,7 +538,7 @@ export type UserCreateWithoutTasksInput = {
   timezone?: string
   workHoursStart?: string
   workHoursEnd?: string
-  status?: $Enums.MemberStatus
+  status?: $Enums.UserStatus
   focus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -554,7 +554,7 @@ export type UserUncheckedCreateWithoutTasksInput = {
   timezone?: string
   workHoursStart?: string
   workHoursEnd?: string
-  status?: $Enums.MemberStatus
+  status?: $Enums.UserStatus
   focus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -586,7 +586,7 @@ export type UserUpdateWithoutTasksInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -602,7 +602,7 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -618,7 +618,7 @@ export type UserCreateWithoutStandupsInput = {
   timezone?: string
   workHoursStart?: string
   workHoursEnd?: string
-  status?: $Enums.MemberStatus
+  status?: $Enums.UserStatus
   focus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -634,7 +634,7 @@ export type UserUncheckedCreateWithoutStandupsInput = {
   timezone?: string
   workHoursStart?: string
   workHoursEnd?: string
-  status?: $Enums.MemberStatus
+  status?: $Enums.UserStatus
   focus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -666,7 +666,7 @@ export type UserUpdateWithoutStandupsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -682,7 +682,7 @@ export type UserUncheckedUpdateWithoutStandupsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursStart?: Prisma.StringFieldUpdateOperationsInput | string
   workHoursEnd?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMemberStatusFieldUpdateOperationsInput | $Enums.MemberStatus
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   focus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -816,7 +816,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     timezone: string
     workHoursStart: string
     workHoursEnd: string
-    status: $Enums.MemberStatus
+    status: $Enums.UserStatus
     focus: string | null
     createdAt: Date
     updatedAt: Date
@@ -1253,7 +1253,7 @@ export interface UserFieldRefs {
   readonly timezone: Prisma.FieldRef<"User", 'String'>
   readonly workHoursStart: Prisma.FieldRef<"User", 'String'>
   readonly workHoursEnd: Prisma.FieldRef<"User", 'String'>
-  readonly status: Prisma.FieldRef<"User", 'MemberStatus'>
+  readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly focus: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>

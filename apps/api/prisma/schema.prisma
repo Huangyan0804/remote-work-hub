@@ -11,7 +11,7 @@ datasource db {
 }
 
 // 成员状态（与 packages/types 里 @repo/types 保持一致）
-enum MemberStatus {
+enum UserStatus {
   ONLINE
   BUSY
   OFFLINE
@@ -40,7 +40,7 @@ model User {
   timezone       String       @default("Asia/Tokyo")
   workHoursStart String       @default("09:00")
   workHoursEnd   String       @default("18:00")
-  status         MemberStatus @default(OFFLINE)
+  status         UserStatus   @default(OFFLINE)
   focus          String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt

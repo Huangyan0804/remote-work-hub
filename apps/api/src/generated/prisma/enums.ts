@@ -9,13 +9,13 @@
 * 🟢 You can import this file directly.
 */
 
-export const MemberStatus = {
+export const UserStatus = {
   ONLINE: 'ONLINE',
   BUSY: 'BUSY',
   OFFLINE: 'OFFLINE'
 } as const
 
-export type MemberStatus = (typeof MemberStatus)[keyof typeof MemberStatus]
+export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 
 
 export const TaskStatus = {

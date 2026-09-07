@@ -120,6 +120,30 @@ pnpm db:migrate:deploy             # 生产部署时使用：只应用已提交�
 
 > 在仓库根目录执行示例：`pnpm --filter api db:migrate --name init`
 
+### 类型检查与共享契约（check-types）
+
+各包统一用 `tsc --noEmit` 做类型检查，Turborepo 按依赖图编排并缓存结果——改动某个包时，只会重跑该包及其依赖它的下游包。
+
+```bash
+# 全仓类型检查（等价于 turbo run check-types）
+pnpm check-types
+
+# 只查某个包
+pnpm --filter @repo/types check-types
+pnpm --filter api check-types
+pnpm --filter web check-types
+```
+
+覆盖范围：`packages/types`、`packages/ui`、`apps/api`、`apps/web`。
+
+使用时机与约定：
+
+1. 修改 `apps/api/prisma/schema.prisma`（字段 / 枚举增删改）→ 执行迁移 + `db:generate` 后，跑一次全仓 `pnpm check-types`。
+2. `packages/types`（`@repo/types`）是前后端共享的**契约层**：入口是未编译的原始 TS，只应通过 `import type` 引入，不参与运行时打包。
+3. 契约 ≠ 数据库字段照搬：只放会跨 HTTP 边界传输的公开字段——去掉 `passwordHash`、关系数组；`DateTime` 转 ISO `string`；可空列写成 `field: string | null`（而非 `field?:`，避免"可选"与"可空"两种 JSON 语义混淆）。
+4. 一旦 api / web 真正 `import type` 了 `@repo/types`，改动契约类型会因 turbo 缓存失效而让两端一起重跑——类型不同步会在 `check-types` 里立即报红，这就是"改一个类型、两端生效"的落地机制。
+5. `check-types` 只负责类型正确性，不等于 lint / 构建通过。
+
 ## 环境变量
 
 ```bash
