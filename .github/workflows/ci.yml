@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  # 同一分支的新提交会取消还在跑的旧流水线，省 Actions 额度
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_CACHE_DIR: ${{ github.workspace }}/.turbo
+
+jobs:
+  quality:
+    name: 质量门禁
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 自动读取 package.json 的 packageManager 字段装对应 pnpm
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # 必须 ≥24.9：jest 的 require(esm) 桥依赖此版本
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # turbo 缓存跨流水线复用：key 用 lockfile 哈希，锁文件没变就命中
+      - name: Turbo 缓存
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - run: pnpm lint
+      - run: pnpm check-types
+      - run: pnpm test
+      - run: pnpm build
+
+  api-e2e:
+    name: API 集成测试（真库）
+    runs-on: ubuntu-latest
+    services:
+      # GitHub 托管的 Postgres：等价于你本地的 docker compose up
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: remote_work_hub
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      # CI 的数据库每个 job 都是全新的，一次用完即弃 → 不需要分开发/测试库
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter api test:e2e
