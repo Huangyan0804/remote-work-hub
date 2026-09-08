@@ -1,0 +1,1 @@
+CREATE DATABASE remote_work_hub_test;

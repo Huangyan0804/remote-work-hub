@@ -5,27 +5,27 @@
 
 ## 节奏约定
 
-| 约定   | 说明                              |
-| ---- | ------------------------------- |
-| 时间单位 | 阶段（Phase），每阶段约 1-2 周，不设硬性截止日期   |
-| 验收标准 | 每阶段末应用可运行、可演示、可提交（git commit）   |
+| 约定     | 说明                                                       |
+| -------- | ---------------------------------------------------------- |
+| 时间单位 | 阶段（Phase），每阶段约 1-2 周，不设硬性截止日期           |
+| 验收标准 | 每阶段末应用可运行、可演示、可提交（git commit）           |
 | 弹性机制 | 某阶段延期不影响其他阶段；每阶段都有"最小完成项"与"可选项" |
-| 里程碑  | 完成阶段 1 后项目可部署，之后每个阶段都是增量        |
+| 里程碑   | 完成阶段 1 后项目可部署，之后每个阶段都是增量              |
 
 ## 阶段总览
 
-| 阶段 | 内容                      | 估时（宽松） |
-| -- | ----------------------- | ------ |
-| 0  | 基础设施：数据库 + Prisma + 工程化 | 1-2 周  |
-| 1  | 认证模块：注册 / 登录 / 鉴权链路     | 1-2 周  |
-| 2  | 团队与时区模块                 | 1-2 周  |
-| 3  | 任务看板模块（拖拽 + 乐观更新）       | 2-3 周  |
-| 4  | 异步日报模块                  | 1-2 周  |
-| 5  | 设置页 + 打磨 + 部署上线         | 1-2 周  |
+| 阶段 | 内容                               | 估时（宽松） |
+| ---- | ---------------------------------- | ------------ |
+| 0    | 基础设施：数据库 + Prisma + 工程化 | 1-2 周       |
+| 1    | 认证模块：注册 / 登录 / 鉴权链路   | 1-2 周       |
+| 2    | 团队与时区模块                     | 1-2 周       |
+| 3    | 任务看板模块（拖拽 + 乐观更新）    | 2-3 周       |
+| 4    | 异步日报模块                       | 1-2 周       |
+| 5    | 设置页 + 打磨 + 部署上线           | 1-2 周       |
 
 总估时约 7-13 周（按业余时间弹性执行，不追赶进度）。
 
-***
+---
 
 ## 阶段 0：基础设施与工程化
 
@@ -42,16 +42,16 @@
 ### 前端 (apps/web)
 
 - [x] 安装依赖：`zustand`、`@tanstack/react-query`、`axios`、`zod`、`react-hook-form`、`@dnd-kit/core`、`tailwind-merge`、`clsx`
-- [ ] 搭建 `lib/api-client.ts`（axios 实例 + JWT 拦截器）与 `lib/store.ts`（Zustand）
-- [ ] 接入 shadcn/ui（按钮、输入框、卡片、对话框、下拉等基础组件）
-- [ ] React Query Provider 挂载到根布局
+- [x] 搭建 `lib/api-client.ts`（axios 实例 + JWT 拦截器）与 `lib/store.ts`（Zustand）
+- [x] 接入 shadcn/ui（按钮、输入框、卡片、对话框、下拉等基础组件）
+- [x] React Query Provider 挂载到根布局
 
 ### 验收
 
-- [ ] `pnpm dev` 一键启动两端，前端可请求后端健康检查接口
-- [ ] `packages/types` 中的类型改动能被前后端同时感知（`pnpm check-types` 通过）
+- [x] `pnpm dev` 一键启动两端，前端可请求后端健康检查接口
+- [x] `packages/types` 中的类型改动能被前后端同时感知（`pnpm check-types` 通过）
 
-***
+---
 
 ## 阶段 1：认证与鉴权模块
 
@@ -76,7 +76,7 @@
 - [ ] 注册 → 登录 → 刷新页面保持登录态 → 访问 `/me` 返回正确用户信息
 - [ ] 退出登录后访问受保护页面被重定向
 
-***
+---
 
 ## 阶段 2：团队与时区模块
 
@@ -85,7 +85,7 @@
 ### 后端
 
 - [ ] `TeamModule`：`GET /api/members` 返回成员列表（状态、时区、工作时间段）
-- [ ] `PATCH /api/members/status`：更新当前状态（ONLINE / BUSY / OFF\_WORK）与今日焦点
+- [ ] `PATCH /api/members/status`：更新当前状态（ONLINE / BUSY / OFF_WORK）与今日焦点
 - [ ] seed 数据：预置 3-5 个不同时区（如 Tokyo / Singapore / San Francisco）的成员
 
 ### 前端
@@ -99,7 +99,7 @@
 - [ ] 页面可查看多时区成员本地时间与重叠窗口
 - [ ] 更新状态后刷新页面仍保持（已持久化）
 
-***
+---
 
 ## 阶段 3：任务看板模块
 
@@ -114,7 +114,7 @@
 
 ### 前端
 
-- [ ] `/board` 页面：四列看板（TODO → IN\_PROGRESS → IN\_REVIEW → DONE）
+- [ ] `/board` 页面：四列看板（TODO → IN_PROGRESS → IN_REVIEW → DONE）
 - [ ] 任务卡片：标题、负责人、优先级、截止日期；新建 / 编辑 / 删除对话框
 - [ ] `@dnd-kit` 跨列拖拽，放开后调用 status 接口并乐观更新
 - [ ] 过滤栏：按状态 / 优先级 / 负责人筛选
@@ -124,7 +124,7 @@
 - [ ] 新建任务 → 拖拽跨列 → 刷新页面状态与顺序正确
 - [ ] 模拟接口失败时 UI 回滚（乐观更新生效）
 
-***
+---
 
 ## 阶段 4：异步日报模块
 
@@ -148,7 +148,7 @@
 - [ ] 提交日报 → 今日列表即时更新 → 历史可翻页查看
 - [ ] 导出的 Markdown / Slack 文本格式正确
 
-***
+---
 
 ## 阶段 5：设置页、打磨与部署
 
@@ -174,7 +174,7 @@
 - [ ] 生产地址可完整走通四个模块
 - [ ] 修改设置后即时生效并持久化
 
-***
+---
 
 ## 日常开发建议
 
@@ -189,3 +189,30 @@
 - [ ] `pnpm build` 与 `pnpm check-types` 全量通过
 - [ ] 生产环境完成一次全功能走查
 
+---
+
+## 自动化测试落地（测试关卡 T1–T7）
+
+> 目标：按"企业常用流程"补齐自动化测试，同时作为换工作的技能练习。
+> 技术选型：API 用 **Jest + supertest**（NestJS CJS 项目官方默认）；Web 用 **Vitest + RTL + MSW**；E2E 用 **Playwright**；CI 用 **GitHub Actions**。
+
+### 关卡状态
+
+- [x] T1 后端 Jest 单测环境（app.controller + mock PrismaService）
+- [x] T2 Nest e2e（configureApp 重构 + health 集成测试）
+- [x] T3 测试库隔离
+- [x] T4 前端 Vitest + RTL + MSW
+- [x] T5 turbo test 管线
+- [ ] T6 GitHub Actions CI
+- [ ] T7 Playwright E2E
+
+### 踩坑记录（后续复用）
+
+1. **TS 6 移除 rootDir 推断（TS5011）**：装了 typescript 6 后，tsconfig 必须显式 `"rootDir": "./src"`。ts-jest 只编译 spec 子集时公共源目录坍缩成 `./src` 必触发；`tsc --noEmit` 因文件集含根目录文件而不触发。
+2. **rootDir 引发的 TS6059**：基础 tsconfig 加 rootDir 后必须配 `"include": ["src"]`，否则根目录 `prisma.config.ts` 被默认 `**/*` 兜入且不在 src 下报错。`prisma.config.ts` 仅 Prisma CLI 使用，不需要进 tsc 项目。
+3. **编辑器识别 jest 全局**：tsconfig `"types"` 被显式限制为 `["node"]` 时，需改成 `["node", "jest"]`，否则 spec 里 `describe/it` 飘红。
+4. **NestJS 12 是 ESM-first**：`@nestjs/*` 全部发布为纯 ESM（无 CJS 构建）。应用是 CJS 时靠 Node ≥24.9 的 require(esm) 运行。Jest 里必须用 `node --experimental-vm-modules node_modules/jest/bin/jest.js` 启动——jest 只有在 `vm.SourceTextModule.hasAsyncGraph` 存在时才走 require(esm) 原生桥，该 API 默认不暴露。
+5. **Prisma 7 生成代码带 `.js` 后缀导入**：`src/generated/prisma/client.ts` 用 ESM 风格 `./internal/class.js` 指向 `.ts` 源文件。ts-jest 边编译边跑、磁盘上没有 `.js`，必须配 `"moduleNameMapper": { "^(\\.{1,2}/.*)\\.js$": "$1" }`（unit 和 e2e 两份 jest 配置都要加）。
+6. **postgres 多库不能用 `POSTGRES_TEST_DB`**：官方镜像只认 `POSTGRES_DB`。多库靠 `docker-entrypoint-initdb.d/` 脚本，但脚本只在**空数据卷首次初始化**时执行——已存在的卷要手动 `docker compose exec postgres psql ... CREATE DATABASE`。
+7. **jest globalSetup 的 env 传不到 worker**：globalSetup 跑在主进程、改的 `process.env` 不影响测试进程。运行时切库必须用 `setupFiles`（每个测试文件在 worker 里执行）。分工：globalSetup 准备 schema（跑迁移）、setupFiles 切 `DATABASE_URL`。
+8. **e2e 断言不要硬编码具体数据**：测试库从阶段1起会被认证用例写入，断言"行为"而非"碰巧的值"（如 health 的 userCount 断言 `typeof === number` 而非 `0`）。
