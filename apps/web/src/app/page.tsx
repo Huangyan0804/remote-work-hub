@@ -1,50 +1,74 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+
+interface HealthResponse {
+  status: string;
+  db: string;
+  userCount: number;
+}
 
 export default function Home() {
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["health"],
+    queryFn: async () => {
+      const { data } = await apiClient.get<HealthResponse>("/health");
+      return data;
+    },
+  });
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 bg-background p-8">
-      <h1 className="text-xl font-semibold">shadcn/ui 组件陈列页（临时）</h1>
-
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>按钮 Button</CardTitle>
-          <CardDescription>五种 variant，源码见 components/ui/button.tsx</CardDescription>
+          <CardTitle>后端健康检查</CardTitle>
+          <CardDescription>
+            GET /api/health — 验证前端 → API → 数据库全链路
+          </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Button>default</Button>
-          <Button variant="secondary">secondary</Button>
-          <Button variant="outline">outline</Button>
-          <Button variant="ghost">ghost</Button>
-          <Button variant="destructive">destructive</Button>
+        <CardContent className="flex flex-col items-start gap-3">
+          {isLoading && <Badge variant="outline">正在检查…</Badge>}
+          {isError && (
+            <div className="flex flex-col items-start gap-2">
+              <Badge variant="destructive">连接失败</Badge>
+              <p className="text-sm text-muted-foreground">
+                请确认数据库与 API 服务已启动（docker compose up -d &amp;&amp;
+                pnpm dev --filter=api）
+              </p>
+            </div>
+          )}
+          {data && (
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex gap-2">
+                <Badge>status: {data.status}</Badge>
+                <Badge variant="secondary">db: {data.db}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                当前用户数：{data.userCount}
+              </p>
+            </div>
+          )}
         </CardContent>
-      </Card>
-
-      <Separator className="max-w-sm" />
-
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>输入框 + 徽章</CardTitle>
-          <CardDescription>Input / Badge 组件</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <Input placeholder="输入点什么…" />
-          <div className="flex flex-wrap gap-2">
-            <Badge>default</Badge>
-            <Badge variant="secondary">secondary</Badge>
-            <Badge variant="outline">outline</Badge>
-            <Badge variant="destructive">destructive</Badge>
-          </div>
-        </CardContent>
+        <CardFooter>
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            重新检查
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );
