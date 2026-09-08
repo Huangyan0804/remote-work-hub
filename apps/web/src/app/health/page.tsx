@@ -1,14 +1,7 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusDot } from "@/components/ui/status-dot";
 import { apiClient } from "@/lib/api-client";
@@ -31,7 +24,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col items-start justify-start gap-6 bg-background p-8">
-      <div className="flex flex-col w-full px-[20%] gap-10">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-6 lg:px-0">
         <div className="flex flex-col">
           <h1 className="text-3xl font-semibold">健康检查</h1>
           <div className="flex flex-row items-end justify-between gap-2">
@@ -44,7 +37,7 @@ export default function Home() {
             </Button>
           </div>
         </div>
-        <div className="flex flex-row items-stretch gap-10">
+        <div className="flex flex-col flex-wrap items-stretch gap-10 lg:flex-row">
           <Card className="flex-1">
             <CardHeader>
               <CardTitle className="text-base text-foreground/60">
@@ -59,7 +52,7 @@ export default function Home() {
                   <>
                     <StatusDot variant="error" />
                     <p className="text-4xl font-semibold text-red-700 dark:text-red-300">
-                      {data?.status || "Error"}
+                      {"Error"}
                     </p>
                     <Badge className="bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300">
                       运行异常
@@ -90,7 +83,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="flex flex-col justify-center gap-8">
               <div className="flex flex-row items-center gap-2">
-                <p className="flex w-full text-4xl font-semibold font-mono tracking-tight">
+                <div className="flex w-full text-4xl font-semibold font-mono tracking-tight">
                   {isLoading ? (
                     <Skeleton className="w-full h-10 rounded-full" />
                   ) : isError ? (
@@ -98,7 +91,7 @@ export default function Home() {
                   ) : (
                     <>{data?.userCount.toLocaleString() || "0"}</>
                   )}
-                </p>
+                </div>
               </div>
               <p className="text-xs text-foreground/60">
                 接口实时返回的注册用户总量
@@ -107,7 +100,7 @@ export default function Home() {
           </Card>
         </div>
         <div>
-          <p className="text-xs text-foreground/60 pl-5">
+          <p className="text-xs text-foreground/60 pl-4">
             数据仅来自后端健康检查接口
           </p>
         </div>
