@@ -30,6 +30,6 @@ export class AuthService {
 			email: safeUser.email,
 		};
 		const token = await this.jwtService.signAsync(payload);
-		return { safeUser, token };
+		return { user: safeUser, token };
 	}
 }
