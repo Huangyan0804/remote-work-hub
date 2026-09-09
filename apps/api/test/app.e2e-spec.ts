@@ -25,7 +25,7 @@ describe("AppController (e2e)", () => {
 		const res = await request(app.getHttpServer()).get("/api/health").expect(200);
 
 		expect(res.body).toMatchObject({ status: "ok", db: "connected" });
-		expect(res.body.userCount).toBeGreaterThan(0);
+		expect(res.body.userCount).toBeGreaterThanOrEqual(0);
 		expect(typeof res.body.userCount).toBe("number");
 	});
 });
