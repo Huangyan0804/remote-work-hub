@@ -6,7 +6,7 @@
 		"dev": "turbo run dev",
 		"lint": "turbo run lint",
 		"format": "biome check --write --unsafe --config-path=biome.beautify.json",
-		"format:staged": "biome check --write --unsafe --config-path=biome.beautify.json --staged",
+		"format:staged": "biome check --write --unsafe --config-path=biome.beautify.json --staged --no-errors-on-unmatched",
 		"check-types": "turbo run check-types",
 		"test": "turbo run test",
 		"prepare": "husky"

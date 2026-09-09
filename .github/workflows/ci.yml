@@ -66,6 +66,8 @@ jobs:
       # CI 的数据库每个 job 都是全新的，一次用完即弃 → 不需要分开发/测试库
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
       TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
+      JWT_SECRET: e2e-test-jwt-secret
+      JWT_EXPIRES_IN: 7d
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
