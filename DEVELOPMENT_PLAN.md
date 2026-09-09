@@ -71,6 +71,13 @@
 - [ ] axios 拦截器：自动注入 `Authorization: Bearer <token>`，401 时清除登录态并跳转
 - [ ] Zustand 持久化登录态（token + user）
 
+### 测试任务（自动化，复用 T1–T7 环境）
+
+- [ ] `AuthService` 单测：register 密码 bcrypt 哈希入库、login 成功 / 密码错误 / 用户不存在（mock Prisma）
+- [ ] API e2e（supertest + 测试库）：register → login → `GET /api/auth/me` 全流程；无 token / 错 token 一律 401
+- [ ] 前端 RTL：登录 / 注册表单校验与提交；MSW 模拟 401 时清除登录态并跳转
+- [ ] Playwright 真链路：注册 → 登录 → 刷新保持登录 → 退出后访问受保护页被重定向
+
 ### 验收
 
 - [ ] 注册 → 登录 → 刷新页面保持登录态 → 访问 `/me` 返回正确用户信息
@@ -93,6 +100,12 @@
 - [ ] `/team` 页面：成员卡片列表（头像、本地时间、状态徽章、今日焦点）
 - [ ] 时区助手：`Intl.DateTimeFormat` 实时渲染各成员本地时间
 - [ ] 重叠时间可视化：按成员工作时段的并集绘制小时条，高亮在线交集
+
+### 测试任务（自动化，复用 T1–T7 环境）
+
+- [ ] API e2e：`GET /api/members` 未鉴权 401、鉴权后返回结构与 seed 数据一致；`PATCH status` 后再次 GET 验证持久化
+- [ ] 前端 RTL：固定时区（mock `Intl.DateTimeFormat`）下本地时间与重叠高亮渲染正确
+- [ ] Playwright：`/team` 真链路展示多时区成员；改状态后刷新页面仍保持
 
 ### 验收
 
@@ -119,6 +132,13 @@
 - [ ] `@dnd-kit` 跨列拖拽，放开后调用 status 接口并乐观更新
 - [ ] 过滤栏：按状态 / 优先级 / 负责人筛选
 
+### 测试任务（自动化，复用 T1–T7 环境）
+
+- [ ] `TaskService` 单测：create / update、status 变更时的 `order` 计算与跨列排序逻辑（mock Prisma）
+- [ ] API e2e：tasks CRUD 全流程 + `status`/`priority`/`assigneeId` 过滤 + `DELETE`
+- [ ] 前端 RTL：四列看板渲染；拖拽触发 status 接口（MSW 成功 / 失败两种，失败断言乐观更新回滚）
+- [ ] Playwright：新建任务 → 拖拽跨列 → 刷新后状态与顺序保持
+
 ### 验收
 
 - [ ] 新建任务 → 拖拽跨列 → 刷新页面状态与顺序正确
@@ -143,6 +163,13 @@
 - [ ] 历史记录列表 + 分页
 - [ ] 一键导出 Markdown / 复制 Slack 格式按钮
 
+### 测试任务（自动化，复用 T1–T7 环境）
+
+- [ ] API e2e：POST standup 后 `GET /api/standups/today` 出现该成员；历史分页参数正确
+- [ ] 纯函数单测：Markdown / Slack 导出文本格式（首日即可脱离 UI 验证）
+- [ ] 前端 RTL：Zod 三段表单校验错误提示、提交成功清空、今日已提交列表更新
+- [ ] Playwright：提交日报 → 今日列表即时出现
+
 ### 验收
 
 - [ ] 提交日报 → 今日列表即时更新 → 历史可翻页查看
@@ -163,6 +190,13 @@
 - [ ] `/settings` 页面：个人资料表单 + 主题切换（Light / Dark）
 - [ ] 全局打磨：空状态、错误提示、加载骨架、响应式布局、键盘可达性
 
+### 测试任务（自动化，复用 T1–T7 环境）
+
+- [ ] API e2e：`PATCH /api/users/profile` 鉴权保护、字段校验与持久化
+- [ ] 前端 RTL：设置表单提交成功 / 失败态；主题切换类名正确生效
+- [ ] Playwright：修改资料与偏好 → 刷新后保持
+- [ ] 生产冒烟：Playwright 另配一个指向生产 baseURL 的 project（如 CI schedule / 手动触发），全功能走查
+
 ### 部署
 
 - [ ] API 部署至 Render / Railway（含环境变量与迁移命令）
@@ -180,13 +214,15 @@
 
 - 每晚先跑 `pnpm dev --filter=api` 与 `pnpm dev --filter=web`，保持热更新
 - 每完成一个勾选项就 `git commit`，形成清晰提交历史
+- 阶段收尾先跑本阶段"测试任务"，再手动验收；红灯先修测试，不留债务
 - 卡住超过 30 分钟就换个小任务，或停在该阶段做"最小完成项"
 - 所有阶段的可选项（打磨、额外过滤等）都可以推迟到阶段 5 统一收尾
 
 ## 完成定义 (Definition of Done)
 
-- [ ] 六个阶段全部勾选完成
+- [ ] 六个阶段全部勾选完成（含各阶段"测试任务"）
 - [ ] `pnpm build` 与 `pnpm check-types` 全量通过
+- [ ] `pnpm test`（单测/组件测试）、`pnpm --filter api test:e2e`、`pnpm --filter web test:e2e` 全绿
 - [ ] 生产环境完成一次全功能走查
 
 ---
