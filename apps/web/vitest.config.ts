@@ -6,6 +6,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: false, // 强制显式 import，类型更清晰
     setupFiles: ["./src/test/setup.ts"],
+    // 单测只扫 src/，避免把 e2e/*.spec.ts（Playwright）误当 vitest 用例
+    include: ["src/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
     css: false,
   },
   resolve: {

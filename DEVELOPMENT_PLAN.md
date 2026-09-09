@@ -203,8 +203,8 @@
 - [x] T3 测试库隔离
 - [x] T4 前端 Vitest + RTL + MSW
 - [x] T5 turbo test 管线
-- [ ] T6 GitHub Actions CI
-- [ ] T7 Playwright E2E
+- [x] T6 GitHub Actions CI（quality + api-e2e 双 job 全绿）
+- [x] T7 Playwright E2E（webServer 三进程编排 + 健康检查真链路，passed）
 
 ### 踩坑记录（后续复用）
 
@@ -216,3 +216,5 @@
 6. **postgres 多库不能用 `POSTGRES_TEST_DB`**：官方镜像只认 `POSTGRES_DB`。多库靠 `docker-entrypoint-initdb.d/` 脚本，但脚本只在**空数据卷首次初始化**时执行——已存在的卷要手动 `docker compose exec postgres psql ... CREATE DATABASE`。
 7. **jest globalSetup 的 env 传不到 worker**：globalSetup 跑在主进程、改的 `process.env` 不影响测试进程。运行时切库必须用 `setupFiles`（每个测试文件在 worker 里执行）。分工：globalSetup 准备 schema（跑迁移）、setupFiles 切 `DATABASE_URL`。
 8. **e2e 断言不要硬编码具体数据**：测试库从阶段1起会被认证用例写入，断言"行为"而非"碰巧的值"（如 health 的 userCount 断言 `typeof === number` 而非 `0`）。
+9. **Next 类型是运行时生成的（CI 干净检出必踩）**：`LayoutProps`/`PageProps` 等类型不是源码 import 的，由 Next 生成进 `.next/types/routes.d.ts`。本地因跑过 dev/build 有 `.next` 所以 `tsc --noEmit` 能过，CI 干净检出必报 TS2304。修法：`check-types` 改为 `next typegen && tsc --noEmit`（typegen 只需扫描路由、秒级）。
+10. **vitest 默认 include 会误收 Playwright 用例**：vitest 默认匹配 `**/*.spec.*`，`e2e/health.spec.ts` 会被当单测收集并报 `Playwright Test did not expect test() to be called here`，连带把 turbo test 跑红。教训：**分层测试工具必须显式划地盘**——vitest `include` 限定 `src/`，Playwright 用 `testDir: ./e2e` 各自为政。
