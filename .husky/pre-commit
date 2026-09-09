@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+set -e
+
+# 1) 美化本次暂存的文件：格式化 + import 排序/合并 + 自动删除未使用的 import
+pnpm format:staged
+
+# 2) 重新暂存被自动修改的文件（仅限本次提交涉及的暂存文件，不触碰其他改动）
+git diff --cached --name-only --diff-filter=ACMRD | while IFS= read -r file; do
+  git add -u -- "$file"
+done
+
+# 3) 提交前质量门禁：测试 + 类型检查
+pnpm test
+pnpm check-types
