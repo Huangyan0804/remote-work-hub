@@ -5,18 +5,10 @@ import { RegisterDto } from "./dto/register.dto";
 
 @Controller("auth")
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-	@Post("register")
-	async register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
-		const { user, token } = await this.authService.register(registerDto);
-		return {
-			user: {
-				...user,
-				createdAt: user.createdAt.toISOString(),
-				updatedAt: user.updatedAt.toISOString(),
-			},
-			token,
-		};
-	}
+  @Post("register")
+  async register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
+    return this.authService.register(registerDto);
+  }
 }
