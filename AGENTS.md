@@ -25,7 +25,7 @@ pnpm + Turborepo 单仓库：`apps/web` = Next.js 16 前端（目前只是脚手
 | 前端页面 / 布局 / 路由 | `apps/web/src/app/`（目前仅 `layout.tsx` `page.tsx` `globals.css`） |
 | 前端依赖里装了但还没用的库 | `apps/web/package.json`（axios / zustand / react-query / zod / @dnd-kit 等） |
 | UI 基础组件 | `packages/ui/src/`（button / card / code） |
-| tsconfig / biome 规范配置 | `packages/typescript-config/`、`packages/biome-config/` |
+| tsconfig 共享配置 | `packages/typescript-config/` |
 | 项目整体设计与模块/API 规划 | `describe.md` |
 | 开发进度与阶段清单（勾选项） | `DEVELOPMENT_PLAN.md` |
 | 根级脚本命令（dev/build/check-types 等） | `package.json`、`turbo.json` |
@@ -58,8 +58,7 @@ remote-work-hub/
 ├── packages/
 │   ├── types/src/index.ts                # @repo/types：UserStatus/User、TaskStatus/TaskPriority/Task（契约层，只 import type）
 │   ├── ui/src/                           # @repo/ui：button.tsx / card.tsx / code.tsx（未被引用）
-│   ├── typescript-config/                # base.json / nextjs.json / react-library.json
-│   └── biome-config/                     # base.json / next.json / react-internal.json
+│   └── typescript-config/                # base.json / nextjs.json / react-library.json
 ├── describe.md                           # 设计与模块划分文档（与代码结构同步）
 ├── DEVELOPMENT_PLAN.md                   # 阶段路线图（0-5 阶段、验收清单）
 ├── README.md                             # 项目 README（含快速开始/命令/环境变量）

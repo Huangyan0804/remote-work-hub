@@ -1,8 +1,6 @@
+import type { AuthUser } from "@repo/types";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { User } from "@repo/types";
-
-export type AuthUser = Pick<User, "id" | "name" | "email" | "avatarUrl">;
 
 interface AuthState {
   token: string | null;

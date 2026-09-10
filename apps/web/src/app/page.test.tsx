@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { HttpResponse, http } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { server } from "@/test/server";
 import Home from "./page";
@@ -36,7 +36,11 @@ describe("健康检查页", () => {
       // 本用例单独覆盖 handler：记录调用次数，返回不同数据证明刷新生效
       http.get("http://localhost:3001/api/health", () => {
         fetchSpy();
-        return HttpResponse.json({ status: "ok", db: "connected", userCount: 5 });
+        return HttpResponse.json({
+          status: "ok",
+          db: "connected",
+          userCount: 5,
+        });
       }),
     );
 
@@ -56,6 +60,8 @@ describe("健康检查页", () => {
 
     renderPage();
     expect(await screen.findByText("连接失败")).toBeInTheDocument();
-    expect(screen.getByText(/请确认数据库与 API 服务已启动/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/请确认数据库与 API 服务已启动/),
+    ).toBeInTheDocument();
   });
 });

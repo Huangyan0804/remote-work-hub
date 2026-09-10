@@ -41,7 +41,6 @@
 | `@repo/types`             | 前后端共享类型（契约层）                   | 已建立 `User` / `Task`，`Standup` 契约待补 |
 | `@repo/ui`                | 基础 UI 组件（button/card/code）           | turbo 模板组件，未被引用                   |
 | `@repo/typescript-config` | 共享 tsconfig（base/nextjs/react-library） | 已供各包使用                               |
-| `@repo/biome-config`      | Biome 代码规范配置                         | 已建立                                     |
 
 ## 3. 架构总览 (System Architecture)
 
@@ -92,8 +91,7 @@ remote-work-hub/
 ├── packages/
 │   ├── types/src/index.ts         # @repo/types：User/UserStatus/Task/TaskStatus/TaskPriority
 │   ├── ui/src/                    # @repo/ui：button.tsx / card.tsx / code.tsx
-│   ├── typescript-config/         # 共享 tsconfig（base/nextjs/react-library）
-│   └── biome-config/              # Biome 配置（base/next/react-internal）
+│   └── typescript-config/         # 共享 tsconfig（base/nextjs/react-library）
 ├── describe.md                    # 本文档：设计与模块规划
 ├── DEVELOPMENT_PLAN.md            # 分阶段开发路线图（含完成勾选清单）
 ├── README.md                      # 人类可读的项目 README

@@ -72,7 +72,6 @@ remote-work-hub/
 ├── packages/
 │   ├── types/                # 前后端共享类型 (@repo/types)
 │   ├── ui/                   # 基础 UI 组件库 (@repo/ui)
-│   ├── biome-config/         # Biome 代码规范配置
 │   └── typescript-config/    # 共享 tsconfig
 ├── describe.md               # 项目设计文档
 └── DEVELOPMENT_PLAN.md       # 开发计划

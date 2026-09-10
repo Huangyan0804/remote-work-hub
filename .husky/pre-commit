@@ -5,7 +5,7 @@ set -e
 pnpm format:staged
 
 # 2) 重新暂存被自动修改的文件（仅限本次提交涉及的暂存文件，不触碰其他改动）
-git diff --cached --name-only --diff-filter=ACMRD | while IFS= read -r file; do
+git diff --cached --name-only --diff-filter=ACMR | while IFS= read -r file; do
   git add -u -- "$file"
 done
 

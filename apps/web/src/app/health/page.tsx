@@ -1,11 +1,11 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusDot } from "@/components/ui/status-dot";
 import { apiClient } from "@/lib/api-client";
-import { useQuery } from "@tanstack/react-query";
 
 interface HealthResponse {
   status: string;

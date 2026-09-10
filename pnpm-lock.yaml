@@ -209,8 +209,6 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@20.19.43)(jsdom@30.0.1(@noble/hashes@1.8.0))(msw@2.15.0(@types/node@20.19.43)(typescript@5.9.2))(vite@8.2.2(@types/node@20.19.43)(jiti@2.7.0))
 
-  packages/biome-config: {}
-
   packages/types:
     devDependencies:
       '@repo/typescript-config':
@@ -231,9 +229,6 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
     devDependencies:
-      '@repo/biome-config':
-        specifier: workspace:^
-        version: link:../biome-config
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
