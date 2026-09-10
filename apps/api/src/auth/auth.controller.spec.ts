@@ -6,6 +6,8 @@ describe("AuthController", () => {
   let controller: AuthController;
   const authServiceMock = {
     register: jest.fn(),
+    login: jest.fn(),
+    getProfile: jest.fn(),
   };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,13 +22,12 @@ describe("AuthController", () => {
     expect(controller).toBeDefined();
   });
 
-  it("should call register service", async () => {
+  it("注册接口", async () => {
     const registerDto = {
       name: "test",
       email: "test@example.com",
       password: "12345678",
     };
-    const now = new Date();
     authServiceMock.register.mockResolvedValue({
       user: {
         id: 1,
@@ -45,5 +46,41 @@ describe("AuthController", () => {
       avatarUrl: "https://example.com/avatar.jpg",
     });
     expect(res.token).toBe("fake-token");
+  });
+
+  it("login接口", async () => {
+    const loginDto = {
+      email: "test@example.com",
+      password: "12345678",
+    };
+    authServiceMock.login.mockResolvedValue({
+      token: "fake-token",
+      user: {
+        id: 1,
+        name: "test",
+        email: "test@example.com",
+        avatarUrl: "https://example.com/avatar.jpg",
+      },
+    });
+    const res = await controller.login(loginDto);
+    expect(res).toBeDefined();
+    expect(res.token).toBe("fake-token");
+  });
+
+  it("me接口", async () => {
+    authServiceMock.getProfile.mockResolvedValue({
+      id: 1,
+      name: "test",
+      email: "test@example.com",
+      avatarUrl: "https://example.com/avatar.jpg",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await controller.me({
+      sub: "1",
+      email: "test@example.com",
+    });
+    expect(res).toBeDefined();
+    expect(res.email).toBe("test@example.com");
   });
 });

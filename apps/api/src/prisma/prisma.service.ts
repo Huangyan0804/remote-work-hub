@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleDestroy } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
 
 @Injectable()
-export class PrismaService extends PrismaClient {
+export class PrismaService extends PrismaClient implements OnModuleDestroy {
   constructor(config: ConfigService) {
     // Prisma 7：PostgreSQL 需显式传入 driver adapter（pg），连接池由 pg 管理。
     // 注入 ConfigService 由 NestJS DI 保证 ConfigModule 先完成 .env 加载，再取 DATABASE_URL
@@ -12,5 +12,9 @@ export class PrismaService extends PrismaClient {
       connectionString: config.getOrThrow<string>("DATABASE_URL"),
     });
     super({ adapter });
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
   }
 }

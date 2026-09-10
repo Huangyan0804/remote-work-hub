@@ -33,4 +33,17 @@ export class UserService {
       },
     });
   }
+
+  /**
+   * 根据ID查询用户
+   * @param id 用户ID
+   * @returns 用户
+   */
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
 }

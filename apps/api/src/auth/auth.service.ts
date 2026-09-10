@@ -1,10 +1,17 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { AuthResponse, User } from "@repo/types";
 import bcrypt from "bcrypt";
 import { Prisma } from "../generated/prisma/client";
-import { toAuthUser } from "../user/user.mapper";
+import { toAuthUser, toUser } from "../user/user.mapper";
 import { UserService } from "../user/user.service";
+import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
+import { JwtPayload } from "./interfaces/jwt-payload.interface";
 
 @Injectable()
 export class AuthService {
@@ -14,7 +21,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto): Promise<AuthResponse> {
     // 检查邮箱是否存在
     const existingUser = await this.userService.findByEmail(registerDto.email);
     if (existingUser) {
@@ -37,11 +44,39 @@ export class AuthService {
         throw error; // 数据库挂了、字段超长等，原样往上抛，别伪装成 409
       });
 
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
     };
     const token = await this.jwtService.signAsync(payload);
     return { user: toAuthUser(user), token };
+  }
+
+  async login(loginDto: LoginDto): Promise<AuthResponse> {
+    const user = await this.userService.findByEmail(loginDto.email);
+    if (!user) {
+      throw new UnauthorizedException("邮箱或密码错误");
+    }
+    const passwordMatch = await bcrypt.compare(
+      loginDto.password,
+      user.passwordHash,
+    );
+    if (!passwordMatch) {
+      throw new UnauthorizedException("邮箱或密码错误");
+    }
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+    };
+    const token = await this.jwtService.signAsync(payload);
+    return { user: toAuthUser(user), token };
+  }
+
+  async getProfile(id: string): Promise<User> {
+    const user = await this.userService.findById(id);
+    if (!user) {
+      throw new UnauthorizedException("用户不存在");
+    }
+    return toUser(user);
   }
 }

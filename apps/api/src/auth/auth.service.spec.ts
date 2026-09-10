@@ -1,6 +1,7 @@
-import { ConflictException } from "@nestjs/common";
+import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
+import bcrypt from "bcrypt";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 
@@ -9,6 +10,7 @@ describe("AuthService", () => {
   const userServiceMock = {
     findByEmail: jest.fn(),
     create: jest.fn(),
+    findById: jest.fn(),
   };
   const jwtServiceMock = {
     signAsync: jest.fn(),
@@ -69,5 +71,56 @@ describe("AuthService", () => {
       }),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(userServiceMock.create).not.toHaveBeenCalled();
+  });
+
+  it("登录成功", async () => {
+    const loginDto = {
+      email: "test@example.com",
+      password: "12345678",
+    };
+    const hashedPassword = await bcrypt.hash(loginDto.password, 10);
+    userServiceMock.findByEmail.mockResolvedValue({
+      id: "u1",
+      email: "test@example.com",
+      passwordHash: hashedPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    jwtServiceMock.signAsync.mockResolvedValue("fake-token");
+    const result = await service.login(loginDto);
+    expect(result).toBeDefined();
+    expect(result.token).toBe("fake-token");
+    expect(result.user.email).toBe(loginDto.email);
+  });
+
+  it("登录用户不存在", async () => {
+    const loginDto = {
+      email: "test@example.com",
+      password: "12345678",
+    };
+    userServiceMock.findByEmail.mockResolvedValue(null);
+    jwtServiceMock.signAsync.mockResolvedValue("fake-token");
+    await expect(service.login(loginDto)).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it("登录密码错误", async () => {
+    const loginDto = {
+      email: "test@example.com",
+      password: "12345678",
+    };
+    const hashedPassword = await bcrypt.hash("wrong_password", 10);
+    userServiceMock.findByEmail.mockResolvedValue({
+      id: "u1",
+      email: "test@example.com",
+      passwordHash: hashedPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    jwtServiceMock.signAsync.mockResolvedValue("fake-token");
+    await expect(service.login(loginDto)).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 });
