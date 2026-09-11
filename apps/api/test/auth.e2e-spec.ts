@@ -41,25 +41,36 @@ describe("AuthController (e2e)", () => {
       .post("/api/auth/register")
       .send({ name: "Alice", email, password: "password123" })
       .expect(201);
-    await request(app.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post("/api/auth/register")
       .send({ name: "Bob", email, password: "password123" })
       .expect(409);
+    // 断言错误码契约（字面量），防止重构时悄悄改了对外契约
+    expect(res.body.code).toBe("AUTH_EMAIL_ALREADY_EXISTS");
   });
 
   it("非法 payload 返回 400", async () => {
-    await request(app.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post("/api/auth/register")
       .send({ name: "", email: "bad", password: "1" })
       .expect(400);
+    expect(res.body.code).toBe("COMMON_VALIDATION_FAILED");
+    expect(res.body.details).toEqual(
+      expect.arrayContaining([expect.objectContaining({ field: "email" })]),
+    );
   });
 
   it("未登录获取me失败返回401", async () => {
-    await request(app.getHttpServer()).get("/api/auth/me").expect(401);
-    await request(app.getHttpServer())
+    const noTokenRes = await request(app.getHttpServer())
+      .get("/api/auth/me")
+      .expect(401);
+    expect(noTokenRes.body.code).toBe("AUTH_UNAUTHORIZED");
+
+    const badTokenRes = await request(app.getHttpServer())
       .get("/api/auth/me")
       .set("Authorization", `Bearer bad_token`)
       .expect(401);
+    expect(badTokenRes.body.code).toBe("AUTH_UNAUTHORIZED");
   });
 
   it("注册到登录到获取me成功", async () => {
@@ -107,14 +118,16 @@ describe("AuthController (e2e)", () => {
       })
       .expect(201);
 
-    await request(app.getHttpServer())
+    const unknownEmailRes = await request(app.getHttpServer())
       .post("/api/auth/login")
       .send({ email: "bad_email@test.com", password: "wrong_password" })
       .expect(401);
+    expect(unknownEmailRes.body.code).toBe("AUTH_INVALID_CREDENTIALS");
 
-    await request(app.getHttpServer())
+    const wrongPasswordRes = await request(app.getHttpServer())
       .post("/api/auth/login")
       .send({ email: userInfo.email, password: "wrong_password" })
       .expect(401);
+    expect(wrongPasswordRes.body.code).toBe("AUTH_INVALID_CREDENTIALS");
   });
 });

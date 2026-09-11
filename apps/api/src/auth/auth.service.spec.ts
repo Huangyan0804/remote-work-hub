@@ -1,7 +1,8 @@
-import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
 import bcrypt from "bcrypt";
+import { ErrorCode } from "../common/errors/error-code";
+import { AppException } from "../common/exceptions/app.exception";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 
@@ -63,13 +64,15 @@ describe("AuthService", () => {
     userServiceMock.findByEmail.mockResolvedValue({
       id: "u1",
     });
-    await expect(
-      service.register({
-        name: "test",
-        email: "test@example.com",
-        password: "12345678",
-      }),
-    ).rejects.toBeInstanceOf(ConflictException);
+    const registerPromise = service.register({
+      name: "test",
+      email: "test@example.com",
+      password: "12345678",
+    });
+    await expect(registerPromise).rejects.toBeInstanceOf(AppException);
+    await expect(registerPromise).rejects.toMatchObject({
+      code: ErrorCode.AUTH_EMAIL_ALREADY_EXISTS,
+    });
     expect(userServiceMock.create).not.toHaveBeenCalled();
   });
 
@@ -100,9 +103,9 @@ describe("AuthService", () => {
     };
     userServiceMock.findByEmail.mockResolvedValue(null);
     jwtServiceMock.signAsync.mockResolvedValue("fake-token");
-    await expect(service.login(loginDto)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    await expect(service.login(loginDto)).rejects.toMatchObject({
+      code: ErrorCode.AUTH_INVALID_CREDENTIALS,
+    });
   });
 
   it("登录密码错误", async () => {
@@ -119,8 +122,8 @@ describe("AuthService", () => {
       updatedAt: new Date(),
     });
     jwtServiceMock.signAsync.mockResolvedValue("fake-token");
-    await expect(service.login(loginDto)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    await expect(service.login(loginDto)).rejects.toMatchObject({
+      code: ErrorCode.AUTH_INVALID_CREDENTIALS,
+    });
   });
 });
