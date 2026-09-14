@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useT } from "next-i18next/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ interface HealthResponse {
 }
 
 export default function Home() {
+  const { t } = useT("common");
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["health"],
     queryFn: async () => {
@@ -32,7 +34,7 @@ export default function Home() {
     <div className="flex flex-1 flex-col items-center justify-center gap-6 bg-background p-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>后端健康检查</CardTitle>
+          <CardTitle>{t("health.title")}</CardTitle>
           <CardDescription>
             GET /api/health — 验证前端 → API → 数据库全链路
           </CardDescription>

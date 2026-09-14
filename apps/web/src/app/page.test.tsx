@@ -6,6 +6,13 @@ import { describe, expect, it, vi } from "vitest";
 import { server } from "@/test/server";
 import Home from "./page";
 
+// 单测不加载 Next 运行时：next-i18next/client 内部 import "next/navigation"，
+// 而 Next 16 的 package.json 没有 exports 字段，Node ESM 解析不了无扩展名的子路径。
+// 本文件只断言硬编码文案，不需要真实的 i18n 实例。
+vi.mock("next-i18next/client", () => ({
+  useT: () => ({ t: (key: string) => key }),
+}));
+
 function renderPage() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
