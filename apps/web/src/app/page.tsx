@@ -44,7 +44,7 @@ export default function Home() {
           {isError && (
             <div className="flex flex-col items-start gap-2">
               <Badge variant="destructive">连接失败</Badge>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 请确认数据库与 API 服务已启动（docker compose up -d &amp;&amp;
                 pnpm dev --filter=api）
               </p>
@@ -56,7 +56,7 @@ export default function Home() {
                 <Badge>status: {data.status}</Badge>
                 <Badge variant="secondary">db: {data.db}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 当前用户数：{data.userCount}
               </p>
             </div>

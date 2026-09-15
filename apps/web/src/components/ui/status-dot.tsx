@@ -54,7 +54,7 @@ export function StatusDot({
   return (
     <span
       className={cn(
-        "relative flex items-center justify-center shrink-0",
+        "relative flex shrink-0 items-center justify-center",
         currentSize,
         className,
       )}
