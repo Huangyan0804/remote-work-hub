@@ -8,7 +8,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono:
+    var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -61,8 +63,26 @@
   --color-border: var(--rwh-border);
   --color-input: var(--rwh-input);
   --color-ring: var(--rwh-ring);
+  --color-ring-soft: var(--rwh-ring-soft);
   --color-destructive: var(--rwh-destructive);
   --color-destructive-foreground: var(--rwh-destructive-foreground);
+
+  --color-success: var(--state-success);
+  --color-success-surface: var(--state-success-surface);
+  --color-success-dot: var(--state-success-dot);
+  --color-warning: var(--state-warning);
+  --color-warning-surface: var(--state-warning-surface);
+  --color-warning-dot: var(--state-warning-dot);
+  --color-error: var(--state-error);
+  --color-error-surface: var(--state-error-surface);
+  --color-error-dot: var(--state-error-dot);
+  --color-info: var(--state-info);
+  --color-info-surface: var(--state-info-surface);
+  --color-info-dot: var(--state-info-dot);
+  --color-neutral: var(--state-neutral);
+  --color-neutral-surface: var(--state-neutral-surface);
+  --color-neutral-dot: var(--state-neutral-dot);
+
   --radius-sm: var(--rwh-radius-sm);
   --radius-md: var(--rwh-radius-md);
   --radius-lg: var(--rwh-radius-lg);
@@ -274,5 +294,21 @@
   }
   html {
     @apply font-sans;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* 自动填充：只修文字色，input 自身不绘制背景，避免覆盖 InputGroup 的边框 */
+  input:is(:-webkit-autofill, :autofill) {
+    -webkit-text-fill-color: var(--foreground);
+    caret-color: var(--foreground);
+    /* 超长 duration，让浏览器强制写入的背景色始终“来不及”生效，input 保持透明 */
+    transition: background-color 50000s ease-in-out 0s !important;
+  }
+  /* 高亮色只由容器统一绘制：整组（含 icon 区）同色，圆角与边框不被遮挡 */
+  [data-slot="input-group"]:has(input:is(:-webkit-autofill, :autofill)) {
+    background-color: var(--rwh-primary-subtle) !important;
   }
 }
