@@ -1,8 +1,8 @@
-import { Separator } from "@base-ui/react";
 import { Globe, Lock, ShieldCheck } from "lucide-react";
 import { getT } from "next-i18next/server";
 import { LogoMark } from "@/components/icons/logo-mark";
 import { IconCircle } from "@/components/ui/icon-circle";
+import { Separator } from "@/components/ui/separator";
 
 export default async function AuthAside() {
   const { t } = await getT("auth");

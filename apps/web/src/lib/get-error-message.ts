@@ -15,14 +15,14 @@ export function getErrorMessage(error: unknown, t: TFunction): string {
 
     // 词典里没有这个码（后端加了新码、前端还没补文案）→ 退回后端的调试描述
     if (data?.message) return data.message;
-    return t("CLIENT_UNKNOWN_ERROR");
+    return t("CLIENT_UNKNOWN_ERROR", { ns: "errors" });
   }
 
   // 2. axios 错误但没有 response —— 断网 / 超时 / 服务没起来
   if (axios.isAxiosError(error)) {
-    return t("CLIENT_NETWORK_ERROR");
+    return t("CLIENT_NETWORK_ERROR", { ns: "errors" });
   }
 
   // 3. 其他（代码 bug、JSON 解析失败等）
-  return t("CLIENT_UNKNOWN_ERROR");
+  return t("CLIENT_UNKNOWN_ERROR", { ns: "errors" });
 }

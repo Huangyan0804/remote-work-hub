@@ -66,8 +66,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <I18nProvider language={lng} resources={resources}>
-          <Providers>{children}</Providers>
-          <Toaster richColors position="top-center" />
+          <Providers>
+            {children}
+            <Toaster richColors position="top-center" />
+          </Providers>
         </I18nProvider>
       </body>
     </html>

@@ -79,7 +79,6 @@ export default function Login() {
                     <FieldLabel
                       className="inline-flex items-center gap-1.5"
                       htmlFor="form-login-email"
-                      aria-required
                     >
                       {t("login.email")}
                       <span className="text-destructive">*</span>
@@ -90,6 +89,7 @@ export default function Login() {
                         {...field}
                         aria-invalid={fieldState.invalid}
                         disabled={isPending}
+                        autoComplete="email"
                       />
                       <InputGroupAddon align="inline-start">
                         <Mail />
@@ -128,6 +128,7 @@ export default function Login() {
                         {...field}
                         aria-invalid={fieldState.invalid}
                         disabled={isPending}
+                        autoComplete="current-password"
                       />
                       <InputGroupAddon align="inline-end">
                         <Button
