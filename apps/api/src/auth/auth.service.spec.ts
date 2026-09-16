@@ -1,8 +1,10 @@
+import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
 import bcrypt from "bcrypt";
 import { ErrorCode } from "../common/errors/error-code";
 import { AppException } from "../common/exceptions/app.exception";
+import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 
@@ -13,8 +15,23 @@ describe("AuthService", () => {
     create: jest.fn(),
     findById: jest.fn(),
   };
+  const prismaMock = {
+    user: {
+      count: jest.fn(),
+      create: jest.fn(),
+    },
+    refreshToken: {
+      create: jest.fn(),
+      updateMany: jest.fn(),
+      findUnique: jest.fn(),
+    },
+  };
   const jwtServiceMock = {
     signAsync: jest.fn(),
+  };
+  const configMock = {
+    getOrThrow: jest.fn(),
+    get: jest.fn(),
   };
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -23,6 +40,8 @@ describe("AuthService", () => {
         AuthService,
         { provide: UserService, useValue: userServiceMock },
         { provide: JwtService, useValue: jwtServiceMock },
+        { provide: PrismaService, useValue: prismaMock },
+        { provide: ConfigService, useValue: configMock },
       ],
     }).compile();
 
@@ -48,10 +67,11 @@ describe("AuthService", () => {
       updatedAt: new Date(),
     });
     jwtServiceMock.signAsync.mockResolvedValue("fake-token");
+    configMock.get.mockReturnValue(30);
 
     const result = await service.register(registerDto);
     expect(result).toBeDefined();
-    expect(result.token).toBe("fake-token");
+    expect(result.accessToken).toBe("fake-token");
     expect(result.user).not.toHaveProperty("passwordHash");
     expect(result.user).not.toHaveProperty("createdAt");
     expect(result.user).not.toHaveProperty("updatedAt");
@@ -90,9 +110,11 @@ describe("AuthService", () => {
       updatedAt: new Date(),
     });
     jwtServiceMock.signAsync.mockResolvedValue("fake-token");
+    configMock.get.mockReturnValue(30);
+
     const result = await service.login(loginDto);
     expect(result).toBeDefined();
-    expect(result.token).toBe("fake-token");
+    expect(result.accessToken).toBe("fake-token");
     expect(result.user.email).toBe(loginDto.email);
   });
 

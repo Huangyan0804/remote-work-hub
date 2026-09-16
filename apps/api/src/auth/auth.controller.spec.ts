@@ -35,7 +35,7 @@ describe("AuthController", () => {
         email: "test@example.com",
         avatarUrl: "https://example.com/avatar.jpg",
       },
-      token: "fake-token",
+      accessToken: "fake-token",
     });
     const res = await controller.register(registerDto);
     expect(res).toBeDefined();
@@ -45,7 +45,7 @@ describe("AuthController", () => {
       email: "test@example.com",
       avatarUrl: "https://example.com/avatar.jpg",
     });
-    expect(res.token).toBe("fake-token");
+    expect(res.accessToken).toBe("fake-token");
   });
 
   it("login接口", async () => {
@@ -54,7 +54,7 @@ describe("AuthController", () => {
       password: "12345678",
     };
     authServiceMock.login.mockResolvedValue({
-      token: "fake-token",
+      accessToken: "fake-token",
       user: {
         id: 1,
         name: "test",
@@ -64,7 +64,7 @@ describe("AuthController", () => {
     });
     const res = await controller.login(loginDto);
     expect(res).toBeDefined();
-    expect(res.token).toBe("fake-token");
+    expect(res.accessToken).toBe("fake-token");
   });
 
   it("me接口", async () => {

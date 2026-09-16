@@ -54,3 +54,8 @@ export type Task = Prisma.TaskModel
  * 
  */
 export type Standup = Prisma.StandupModel
+/**
+ * Model RefreshToken
+ * 
+ */
+export type RefreshToken = Prisma.RefreshTokenModel

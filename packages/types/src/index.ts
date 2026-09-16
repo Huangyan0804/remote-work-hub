@@ -43,7 +43,14 @@ export interface AuthUser {
 
 export interface AuthResponse {
   user: AuthUser;
-  token: string;
+}
+
+// BFF ↔ NestJS 内部用
+export interface TokenResponse {
+  user: AuthUser;
+  accessToken: string;
+  refreshToken: string;
+  refreshExpiresAt: string;
 }
 
 // 字段级校验失败明细：rules 是 class-validator 的规则名（如 isEmail），前端据此查自己的文案。
@@ -66,4 +73,5 @@ export interface APIError {
 export interface LoginRequest {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }

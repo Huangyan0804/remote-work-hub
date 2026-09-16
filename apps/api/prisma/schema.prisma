@@ -47,6 +47,7 @@ model User {
 
   tasks    Task[]
   standups Standup[]
+  refreshTokens RefreshToken[]   // 新增
 }
 
 model Task {
@@ -76,4 +77,19 @@ model Standup {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
+}
+
+// 刷新令牌：存哈希不存明文；同一登录会话派生出的令牌共享 familyId
+model RefreshToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  familyId  String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, familyId])
+  @@index([expiresAt])
 }
