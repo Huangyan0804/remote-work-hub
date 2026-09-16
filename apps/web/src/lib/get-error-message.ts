@@ -9,7 +9,7 @@ export function getErrorMessage(error: unknown, t: TFunction): string {
 
     if (data?.code) {
       // i18next 找不到 key 时返回 defaultValue，据此判断"翻到没翻到"
-      const translated = t(data.code, { defaultValue: "" });
+      const translated = t(data.code, { defaultValue: "", ns: "errors" });
       if (translated) return translated;
     }
 

@@ -62,3 +62,8 @@ export interface APIError {
   timestamp: string;
   details?: APIErrorDetail[];
 }
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}

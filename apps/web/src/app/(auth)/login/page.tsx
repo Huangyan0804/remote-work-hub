@@ -1,12 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { LoginRequest } from "@repo/types";
 import { Eye, EyeOff, Info, KeyRound, Mail, TriangleAlert } from "lucide-react";
 import { useT } from "next-i18next/client";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,26 +24,31 @@ import {
 } from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+import { getErrorMessage } from "@/lib/get-error-message";
+import { useLogin } from "../hooks";
 
 const formSchema = z.object({
-  email: z.email("请输入有效的邮箱地址"),
-  password: z.string().nonempty("请输入密码"),
-});
+  email: z.email("validation.email"),
+  password: z.string().min(1, "validation.password"),
+}) satisfies z.ZodType<LoginRequest>;
 
 export default function Login() {
-  const { t } = useT();
+  const { t } = useT("auth");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const form = useForm<z.infer<typeof formSchema>>({
+
+  const loginForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data);
-    // wait 1s
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const { login, isError, isPending, error } = useLogin();
+
+  const onSubmit = (form: z.infer<typeof formSchema>) => {
+    console.log(form);
+    login(form);
   };
 
   return (
@@ -55,18 +61,19 @@ export default function Login() {
       </div>
       <Card className="w-full p-4 sm:max-w-md">
         <CardContent className="p-4">
-          <form id="form-login" onSubmit={form.handleSubmit(onSubmit)}>
+          <form id="form-login" onSubmit={loginForm.handleSubmit(onSubmit)}>
             <FieldGroup className="gap-4">
-              <Alert className="border-error bg-error-surface text-error">
-                <TriangleAlert />
-                <AlertTitle className="font-medium">邮箱或密码错误</AlertTitle>
-                <AlertDescription className="text-error text-xs">
-                  出于安全考虑不区分具体字段，请修正后重新登录
-                </AlertDescription>
-              </Alert>
+              {isError && (
+                <Alert className="border-error bg-error-surface text-error">
+                  <TriangleAlert />
+                  <AlertTitle className="font-medium">
+                    {getErrorMessage(error, t)}
+                  </AlertTitle>
+                </Alert>
+              )}
               <Controller
                 name="email"
-                control={form.control}
+                control={loginForm.control}
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel
@@ -82,6 +89,7 @@ export default function Login() {
                         id="form-login-email"
                         {...field}
                         aria-invalid={fieldState.invalid}
+                        disabled={isPending}
                       />
                       <InputGroupAddon align="inline-start">
                         <Mail />
@@ -92,7 +100,7 @@ export default function Login() {
                       <FieldError>
                         <p className="inline-flex items-center gap-1 text-xs">
                           <Info className="size-3" />
-                          <span>{fieldState.error?.message}</span>
+                          <span>{t(fieldState.error?.message as string)}</span>
                         </p>
                       </FieldError>
                     )}
@@ -101,7 +109,7 @@ export default function Login() {
               />
               <Controller
                 name="password"
-                control={form.control}
+                control={loginForm.control}
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel
@@ -119,6 +127,7 @@ export default function Login() {
                         type={showPassword ? "text" : "password"}
                         {...field}
                         aria-invalid={fieldState.invalid}
+                        disabled={isPending}
                       />
                       <InputGroupAddon align="inline-end">
                         <Button
@@ -139,7 +148,7 @@ export default function Login() {
                       <FieldError>
                         <p className="inline-flex items-center gap-1 text-xs">
                           <Info className="size-3" />
-                          <span>{fieldState.error?.message}</span>
+                          <span>{t(fieldState.error?.message as string)}</span>
                         </p>
                       </FieldError>
                     )}
@@ -165,10 +174,9 @@ export default function Login() {
                 form="form-login"
                 size="lg"
                 className="w-full"
+                disabled={isPending}
               >
-                {form.formState.isSubmitting && (
-                  <Spinner data-icon="inline-start" />
-                )}
+                {isPending && <Spinner data-icon="inline-start" />}
                 登录
               </Button>
             </FieldGroup>
