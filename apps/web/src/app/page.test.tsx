@@ -41,7 +41,7 @@ describe("健康检查页", () => {
     const fetchSpy = vi.fn();
     server.use(
       // 本用例单独覆盖 handler：记录调用次数，返回不同数据证明刷新生效
-      http.get("http://localhost:3001/api/health", () => {
+      http.get("http://localhost:3000/api/health", () => {
         fetchSpy();
         return HttpResponse.json({
           status: "ok",
@@ -62,7 +62,7 @@ describe("健康检查页", () => {
 
   it("请求失败时展示连接失败与提示", async () => {
     server.use(
-      http.get("http://localhost:3001/api/health", () => HttpResponse.error()),
+      http.get("http://localhost:3000/api/health", () => HttpResponse.error()),
     );
 
     renderPage();

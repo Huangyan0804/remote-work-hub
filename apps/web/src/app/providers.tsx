@@ -8,7 +8,8 @@ import {
 } from "@tanstack/react-query";
 import { useT } from "next-i18next/client";
 import { ThemeProvider } from "next-themes";
-import { type ReactNode, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/get-error-message";
 

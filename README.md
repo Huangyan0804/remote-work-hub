@@ -2,7 +2,7 @@
 
 > 为异步沟通与分布式团队打造的轻量级远程协作工作台。
 
-解决远程团队在**跨时区协作、任务状态透明化、异步进度汇报**场景下的核心痛点，展示端到端 TypeScript 类型安全、JWT 跨域鉴权与面向对象的模块化后端架构。
+解决远程团队在**跨时区协作、任务状态透明化、异步进度汇报**场景下的核心痛点，展示端到端 TypeScript 类型安全、BFF 会话鉴权与面向对象的模块化后端架构。
 
 ## 架构总览
 
@@ -10,14 +10,21 @@
 
 ```text
 ┌───────────────────────────────────────────────┐
-│          前端应用  apps/web (Next.js)         │
-│    App Router + Tailwind CSS + React Query    │
+│              浏览器（不持有任何 token）        │
+│         仅有一个 httpOnly 会话 Cookie          │
+└──────────────────────┬────────────────────────┘
+                       │ 同源请求 /api/*（Cookie 自动携带）
+                       ▼
+┌───────────────────────────────────────────────┐
+│   BFF 层  apps/web (Next.js Route Handler)    │
+│   解密 Cookie 取出 token · 注入 Authorization │
+│   access 过期时用 refresh 换新并重放原请求    │
 └──────────────────────┬────────────────────────┘
                        │ HTTP / HTTPS (RESTful API + Bearer JWT)
                        ▼
 ┌───────────────────────────────────────────────┐
 │       API 服务  apps/api (NestJS)             │
-│       模块化架构 + Prisma ORM + JWT 鉴权      │
+│   模块化架构 + Prisma ORM + JWT / Refresh     │
 └──────────────────────┬────────────────────────┘
                        │ SQL (Prisma Client)
                        ▼
@@ -28,24 +35,40 @@
 
 ## 技术栈
 
-| 领域      | 前端 `apps/web`          | 后端 `apps/api`            |
-| --------- | ------------------------ | -------------------------- |
-| 框架      | Next.js (App Router)     | NestJS (Node.js)           |
-| 语言      | TypeScript               | TypeScript                 |
-| 样式/UI   | Tailwind CSS + shadcn/ui | —                          |
-| 状态/请求 | Zustand + TanStack Query | —                          |
-| 数据层    | —                        | Prisma ORM + PostgreSQL    |
-| 鉴权      | Axios/fetch JWT 拦截器   | Passport.js + JWT + bcrypt |
-| 校验      | Zod + React Hook Form    | class-validator            |
+| 领域      | 前端 `apps/web`            | 后端 `apps/api`                            |
+| --------- | -------------------------- | ------------------------------------------ |
+| 框架      | Next.js (App Router)       | NestJS (Node.js)                           |
+| 语言      | TypeScript                 | TypeScript                                 |
+| 样式/UI   | Tailwind CSS + shadcn/ui   | —                                          |
+| 状态/请求 | Zustand + TanStack Query   | —                                          |
+| 数据层    | —                          | Prisma ORM + PostgreSQL                    |
+| 鉴权      | BFF + httpOnly Cookie      | Passport JWT + Refresh Token 轮换 + bcrypt |
+| 校验      | Zod + React Hook Form      | class-validator                            |
 
-> 说明：以上为项目目标技术栈。当前骨架阶段已接入框架本体（NestJS / Next.js / Tailwind / Turborepo / 共享类型包），数据库、鉴权与业务模块将按[开发计划](./DEVELOPMENT_PLAN.md)逐步落地。
+> 说明：以上为项目目标技术栈。当前已完成基础设施（NestJS / Next.js / Tailwind / Turborepo / 共享类型包 / 数据库与迁移）与**认证与鉴权模块**（详见下文），团队 / 看板 / 日报 / 设置按[开发计划](./DEVELOPMENT_PLAN.md)推进。
 
 ## 功能模块
 
-### 认证与鉴权 (Auth)
+### 认证与鉴权 (Auth) — 已实现
 
-- 用户注册（bcrypt 密码哈希）、登录、获取当前用户 Profile
-- 前端路由守卫 + 请求拦截器自动注入 `Authorization: Bearer <token>`
+- 用户注册（bcrypt 密码哈希）、登录、获取当前用户 Profile、刷新令牌、退出登录
+- **BFF 架构**：浏览器不持有任何 token，只保存一个 httpOnly Cookie；Next.js Route Handler 同源代理后端请求并注入 `Authorization`
+- **双令牌**：Access Token（JWT，15 分钟）+ Refresh Token（不透明随机串，只存 sha256 哈希、可撤销）
+- **Refresh Token 轮换 + 重放检测**：每次刷新换发新令牌；同一次登录派生的令牌共享 `familyId`，一旦检测到已吊销的令牌被复用，立即吊销整族
+- **记住我**：勾选 → 持久 Cookie（30 天）；未勾选 → 会话 Cookie（关闭浏览器即失效）
+- **会话过期自动回跳**：以业务码 `AUTH_UNAUTHORIZED` 驱动，清除前端登录态并跳转 `/login?redirect=<当前页面>`，登录成功后自动回到原页面；登录页自身的凭证错误（`AUTH_INVALID_CREDENTIALS`，HTTP 400）不会触发跳转
+
+认证相关代码位置：
+
+| 层                | 文件                                                                                                        |
+| ----------------- | ----------------------------------------------------------------------------------------------------------- |
+| 后端模块          | [apps/api/src/auth/](./apps/api/src/auth)（controller / service / guard / DTO）                             |
+| 后端错误契约      | [apps/api/src/common/errors/error-code.ts](./apps/api/src/common/errors/error-code.ts)（业务码 → HTTP 状态） |
+| BFF 通用代理      | [apps/web/src/app/api/[...path]/route.ts](./apps/web/src/app/api/%5B...path%5D/route.ts)                    |
+| BFF 登录/注册/登出 | [apps/web/src/app/api/auth/](./apps/web/src/app/api/auth)                                                   |
+| Cookie 加解密     | [apps/web/src/lib/session.ts](./apps/web/src/lib/session.ts)                                                |
+| 前端请求拦截器    | [apps/web/src/lib/api-client.ts](./apps/web/src/lib/api-client.ts)                                          |
+| 共享契约          | [packages/types/src/index.ts](./packages/types/src/index.ts)                                                |
 
 ### 团队与时区 (Team)
 
@@ -97,6 +120,12 @@ pnpm build
 
 # 代码检查
 pnpm check-types
+
+# 测试（后端单测 / e2e，前端 vitest / playwright）
+pnpm --filter api test
+pnpm --filter api test:e2e
+pnpm --filter web test
+pnpm --filter web test:e2e
 ```
 
 启动后访问：
@@ -149,12 +178,20 @@ pnpm --filter web check-types
 # apps/api/.env
 DATABASE_URL="postgresql://user:password@localhost:5432/remote_work_hub"
 JWT_SECRET="your-secret"
-JWT_EXPIRES_IN="7d"
+JWT_EXPIRES_IN="15m"                # Access Token 寿命
+JWT_REFRESH_DAYS=30                 # Refresh Token 寿命：勾选「记住我」
+JWT_REFRESH_SESSION_DAYS=1          # Refresh Token 寿命：未勾选
 PORT=3001
 
 # apps/web/.env.local
-NEXT_PUBLIC_API_URL="http://localhost:3001"
+API_BASE_URL="http://localhost:3001"  # 仅供 BFF 服务端使用，禁止加 NEXT_PUBLIC_ 前缀
+SESSION_SECRET="<32 字节 base64>"     # 会话 Cookie 的 AES-256-GCM 密钥
 ```
+
+> ⚠️ 两个与安全相关的约定：
+>
+> 1. `API_BASE_URL` **不能**写成 `NEXT_PUBLIC_API_URL`——一旦带上该前缀，后端地址会被编译进浏览器产物。
+> 2. `SESSION_SECRET` 必须是 32 字节的 base64（`openssl rand -base64 32` 生成），它直接作为 AES-256-GCM 的密钥使用。
 
 ## 部署建议
 

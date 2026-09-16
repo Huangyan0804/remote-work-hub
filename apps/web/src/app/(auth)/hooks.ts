@@ -10,13 +10,19 @@ export function useLogin() {
   const router = useRouter(); // next/navigation
   const setAuth = useAuthStore((s) => s.setAuth);
 
+  function getRedirectTarget(): string {
+    const raw = new URLSearchParams(window.location.search).get("redirect");
+    if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/";
+    return raw;
+  }
+
   const mutationResult = useMutation({
     mutationKey: ["auth", "login"],
     mutationFn: login,
     meta: { silent: true },
-    onSuccess: ({ token, user }: AuthResponse) => {
-      setAuth(token, user);
-      router.replace("/");
+    onSuccess: ({ user }: AuthResponse) => {
+      setAuth(user);
+      router.replace(getRedirectTarget());
     },
   });
   return {

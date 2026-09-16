@@ -4,8 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { LoginRequest } from "@repo/types";
 import { Eye, EyeOff, Info, KeyRound, Mail, TriangleAlert } from "lucide-react";
 import { useT } from "next-i18next/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -30,10 +31,12 @@ import { useLogin } from "../hooks";
 const formSchema = z.object({
   email: z.email("validation.email"),
   password: z.string().min(1, "validation.password"),
+  rememberMe: z.boolean(),
 }) satisfies z.ZodType<LoginRequest>;
 
 export default function Login() {
   const { t } = useT("auth");
+  const { t: tErrors } = useT("errors");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const loginForm = useForm<z.infer<typeof formSchema>>({
@@ -41,15 +44,23 @@ export default function Login() {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   });
 
   const { login, isError, isPending, error } = useLogin();
 
   const onSubmit = (form: z.infer<typeof formSchema>) => {
-    console.log(form);
     login(form);
   };
+
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has("redirect")) return;
+    toast.info(tErrors("AUTH_UNAUTHORIZED"), {
+      id: "session-expired",
+      duration: 10_000,
+    });
+  }, [tErrors]);
 
   return (
     <>
@@ -63,14 +74,15 @@ export default function Login() {
         <CardContent className="p-4">
           <form id="form-login" onSubmit={loginForm.handleSubmit(onSubmit)}>
             <FieldGroup className="gap-4">
-              {isError && (
+              {isError ? (
                 <Alert className="border-error bg-error-surface text-error">
                   <TriangleAlert />
                   <AlertTitle className="font-medium">
                     {getErrorMessage(error, t)}
                   </AlertTitle>
                 </Alert>
-              )}
+              ) : null}
+
               <Controller
                 name="email"
                 control={loginForm.control}
@@ -160,21 +172,30 @@ export default function Login() {
                   </Field>
                 )}
               />
-
-              <Field
-                className="inline-flex items-center justify-between"
-                orientation="horizontal"
-              >
-                <div className="inline-flex items-center gap-2">
-                  <Checkbox id="remember" />
-                  <FieldLabel htmlFor="remember">
-                    {t("login.remember")}
-                  </FieldLabel>
-                </div>
-                <Button variant="link" className="underline">
-                  {t("login.forgot")}
-                </Button>
-              </Field>
+              <Controller
+                control={loginForm.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <Field
+                    className="inline-flex items-center justify-between"
+                    orientation="horizontal"
+                  >
+                    <div className="inline-flex items-center gap-2">
+                      <Checkbox
+                        id="remember"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <FieldLabel htmlFor="remember">
+                        {t("login.remember")}
+                      </FieldLabel>
+                    </div>
+                    <Button variant="link" className="underline">
+                      {t("login.forgot")}
+                    </Button>
+                  </Field>
+                )}
+              />
 
               <Button
                 type="submit"

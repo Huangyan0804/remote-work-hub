@@ -55,33 +55,42 @@
 
 ## 阶段 1：认证与鉴权模块
 
-**目标**：完成用户注册 / 登录 / 获取当前用户，前端实现登录页与路由守卫。
+**目标**：完成用户注册 / 登录 / 获取当前用户与登出，前端实现登录页与「会话失效自动回到登录页」链路。
+
+> 实现说明：最终采用 **BFF 会话鉴权**（而非原规划的前端持有 JWT）：浏览器只保留一个 httpOnly 会话 Cookie，Next.js Route Handler 负责解密 Cookie、注入 `Authorization` 并转发给后端。详见 [describe.md §7](./describe.md)。
 
 ### 后端
 
-- [ ] `AuthModule`：`POST /api/auth/register`（bcrypt 哈希入库）
-- [ ] `POST /api/auth/login`：校验凭证，签发 JWT（Access Token）+ 返回用户简信息
-- [ ] `GET /api/auth/me`：JWT 守卫保护，返回当前用户 Profile
-- [ ] 全局 `HttpExceptionFilter`，统一错误响应格式
+- [x] `AuthModule`：`POST /api/auth/register`（bcrypt 哈希入库）
+- [x] `POST /api/auth/login`：校验凭证，签发 JWT（Access Token）+ Refresh Token 并返回用户简信息
+- [x] `GET /api/auth/me`：全局 `JwtAuthGuard` 保护（`@SkipAuth` 豁免公开端点），返回当前用户 Profile
+- [x] `POST /api/auth/refresh`：刷新令牌轮换（吊销旧的、同 family 下发新的），检出重放则整族吊销
+- [x] `POST /api/auth/logout`：吊销该 refresh 所属整族，返回 `204`
+- [x] 全局 `HttpExceptionFilter` + 业务错误码（`ErrorCode` / `ERROR_STATUS`），统一 `APIError` 响应格式
 
 ### 前端
 
-- [ ] 登录 / 注册页面（`(auth)/login`、`(auth)/register`）
-- [ ] `AuthGuard`：未登录访问受保护页面时重定向至 `/login`
-- [ ] axios 拦截器：自动注入 `Authorization: Bearer <token>`，401 时清除登录态并跳转
-- [ ] Zustand 持久化登录态（token + user）
+- [x] 登录页面 `(auth)/login`（含 `redirect` 回跳与会话过期 toast 提示）
+- [x] BFF 端点与通用代理：`api/auth/{login,register,logout}` 写/清会话 Cookie；`api/[...path]` 注入 token 并在 access 过期时自动 refresh 重放
+- [x] 会话 Cookie 加解密（`lib/session.ts`，JWE AES-256-GCM）与「记住我」（有 `maxAge` 为持久 Cookie，否则关浏览器失效）
+- [x] axios 拦截器：按业务码 `REAUTH_REQUIRED_CODES` 清登录态并跳转 `/login?redirect=...`（不用 401 判断）
+- [x] Zustand 持久化用户信息（`lib/store.ts`，**不存 token**）
+- [ ] 注册页面 `(auth)/register`（路由组与 hooks 已就绪，页面待补）
+- [ ] 全站路由守卫（当前依赖 BFF 返回 `AUTH_UNAUTHORIZED` 触发跳转，未做主动拦截）
 
 ### 测试任务（自动化，复用 T1–T7 环境）
 
-- [ ] `AuthService` 单测：register 密码 bcrypt 哈希入库、login 成功 / 密码错误 / 用户不存在（mock Prisma）
-- [ ] API e2e（supertest + 测试库）：register → login → `GET /api/auth/me` 全流程；无 token / 错 token 一律 401
-- [ ] 前端 RTL：登录 / 注册表单校验与提交；MSW 模拟 401 时清除登录态并跳转
-- [ ] Playwright 真链路：注册 → 登录 → 刷新保持登录 → 退出后访问受保护页被重定向
+- [x] `AuthService` 单测：register 成功 / 邮箱已存在；login 成功 / 密码错误 / 用户不存在（mock Prisma）
+- [x] API e2e（supertest）：register → login → `GET /api/auth/me` 全流程；无 token / 错 token 返回 401 且 `code = AUTH_UNAUTHORIZED`；重复邮箱 409；非法 payload 400
+- [ ] `refresh` 轮换与重放检测单测 / e2e（当前 `auth.e2e-spec.ts` 未覆盖）
+- [ ] 前端 RTL：登录表单校验与提交；MSW 模拟会话失效时清除登录态并跳转
+- [ ] Playwright 真链路：登录 → 刷新保持登录 → 退出后再访问受保护页被重定向
 
 ### 验收
 
-- [ ] 注册 → 登录 → 刷新页面保持登录态 → 访问 `/me` 返回正确用户信息
-- [ ] 退出登录后访问受保护页面被重定向
+- [x] 注册 → 登录 → 刷新页面保持登录态（Cookie 续期）→ 访问 `/api/auth/me` 返回正确用户信息
+- [x] 会话失效后请求受保护接口被清 Cookie 并跳回登录页，登录成功后回跳原地址
+- [ ] 注册页可用（`/register` 尚未实现，暂以脚本/接口直插种子用户验证）
 
 ---
 

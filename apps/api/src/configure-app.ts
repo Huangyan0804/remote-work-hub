@@ -1,5 +1,4 @@
 import {
-  HttpStatus,
   INestApplication,
   ValidationError,
   ValidationPipe,
@@ -25,16 +24,12 @@ export function configureApp(app: INestApplication): void {
       // DTO 校验失败也抛 AppException，让错误来源收敛成一种形状。
       // 只取 constraints 的 key（规则名，如 isEmail/minLength），不取 value（那是 class-validator 的英文文案）。
       exceptionFactory: (errors: ValidationError[]) =>
-        new AppException(
-          ErrorCode.COMMON_VALIDATION_FAILED,
-          HttpStatus.BAD_REQUEST,
-          {
-            details: errors.map((error) => ({
-              field: error.property,
-              rules: error.constraints ? Object.keys(error.constraints) : [],
-            })),
-          },
-        ),
+        new AppException(ErrorCode.COMMON_VALIDATION_FAILED, {
+          details: errors.map((error) => ({
+            field: error.property,
+            rules: error.constraints ? Object.keys(error.constraints) : [],
+          })),
+        }),
     }),
   );
 

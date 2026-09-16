@@ -67,7 +67,11 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
       TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
       JWT_SECRET: e2e-test-jwt-secret
-      JWT_EXPIRES_IN: 7d
+      # access token 的服务端寿命
+      JWT_EXPIRES_IN: 15m
+      # refresh token 的服务端寿命 ：勾选"记住我"
+      JWT_REFRESH_DAYS: 30
+      JWT_REFRESH_SESSION_DAYS: 1
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

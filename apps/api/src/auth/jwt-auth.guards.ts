@@ -1,4 +1,4 @@
-import { ExecutionContext, HttpStatus, Injectable } from "@nestjs/common";
+import { ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { SKIP_AUTH_KEY } from "../common/decorators/skip-auth.decorator";
@@ -32,10 +32,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
       throw err;
     }
     if (!user) {
-      throw new AppException(
-        ErrorCode.AUTH_UNAUTHORIZED,
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new AppException(ErrorCode.AUTH_UNAUTHORIZED);
     }
     return user;
   }

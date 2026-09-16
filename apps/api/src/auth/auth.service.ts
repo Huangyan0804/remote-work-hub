@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { TokenResponse, User } from "@repo/types";
@@ -29,10 +29,7 @@ export class AuthService {
     // 检查邮箱是否存在
     const existingUser = await this.userService.findByEmail(registerDto.email);
     if (existingUser) {
-      throw new AppException(
-        ErrorCode.AUTH_EMAIL_ALREADY_EXISTS,
-        HttpStatus.CONFLICT,
-      );
+      throw new AppException(ErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
     }
 
     const user = await this.userService
@@ -47,10 +44,7 @@ export class AuthService {
           error.code === "P2002"
         ) {
           // 先查后建仍有并发竞态：同邮箱同时注册会撞唯一索引，兜成同一个业务错误
-          throw new AppException(
-            ErrorCode.AUTH_EMAIL_ALREADY_EXISTS,
-            HttpStatus.CONFLICT,
-          );
+          throw new AppException(ErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
         }
         throw error; // 数据库挂了、字段超长等，原样往上抛，别伪装成 409
       });
@@ -65,10 +59,7 @@ export class AuthService {
       !user ||
       !(await bcrypt.compare(loginDto.password, user.passwordHash))
     ) {
-      throw new AppException(
-        ErrorCode.AUTH_INVALID_CREDENTIALS,
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS);
     }
     const tokens = await this.issueTokens(
       toUser(user),
@@ -80,10 +71,7 @@ export class AuthService {
   async getProfile(id: string): Promise<User> {
     const user = await this.userService.findById(id);
     if (!user) {
-      throw new AppException(
-        ErrorCode.AUTH_USER_NOT_FOUND,
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new AppException(ErrorCode.AUTH_UNAUTHORIZED);
     }
     return toUser(user);
   }
@@ -119,28 +107,19 @@ export class AuthService {
       where: { tokenHash: hashRefreshToken(rawToken) },
     });
     if (!record) {
-      throw new AppException(
-        ErrorCode.AUTH_UNAUTHORIZED,
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new AppException(ErrorCode.AUTH_UNAUTHORIZED);
     }
     if (record.revokedAt || record.expiresAt < new Date()) {
       await this.prismaService.refreshToken.updateMany({
         where: { familyId: record.familyId, revokedAt: null },
         data: { revokedAt: new Date() },
       });
-      throw new AppException(
-        ErrorCode.AUTH_UNAUTHORIZED,
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new AppException(ErrorCode.AUTH_UNAUTHORIZED);
     }
 
     const user = await this.userService.findById(record.userId);
     if (!user) {
-      throw new AppException(
-        ErrorCode.AUTH_USER_NOT_FOUND,
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new AppException(ErrorCode.AUTH_UNAUTHORIZED);
     }
 
     const accessToken = await this.jwtService.signAsync({

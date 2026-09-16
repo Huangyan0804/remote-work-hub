@@ -32,7 +32,7 @@ describe("AuthController (e2e)", () => {
       })
       .expect(201);
 
-    expect(res.body.token).toEqual(expect.any(String));
+    expect(res.body.accessToken).toEqual(expect.any(String));
     expect(res.body.user).not.toHaveProperty("passwordHash");
   });
   it("重复邮箱返回409", async () => {
@@ -93,16 +93,16 @@ describe("AuthController (e2e)", () => {
       .post("/api/auth/login")
       .send({ email: userInfo.email, password: userInfo.password })
       .expect(200);
-    expect(loginRes.body.token).toEqual(expect.any(String));
+    expect(loginRes.body.accessToken).toEqual(expect.any(String));
 
     const meRes = await request(app.getHttpServer())
       .get("/api/auth/me")
-      .set("Authorization", `Bearer ${loginRes.body.token}`)
+      .set("Authorization", `Bearer ${loginRes.body.accessToken}`)
       .expect(200);
     expect(meRes.body.email).toEqual(userInfo.email);
   });
 
-  it("注册到登录失败返回401", async () => {
+  it("注册到登录失败返回400", async () => {
     const name = Date.now();
     const userInfo = {
       name: `test${name}`,
@@ -121,13 +121,13 @@ describe("AuthController (e2e)", () => {
     const unknownEmailRes = await request(app.getHttpServer())
       .post("/api/auth/login")
       .send({ email: "bad_email@test.com", password: "wrong_password" })
-      .expect(401);
+      .expect(400);
     expect(unknownEmailRes.body.code).toBe("AUTH_INVALID_CREDENTIALS");
 
     const wrongPasswordRes = await request(app.getHttpServer())
       .post("/api/auth/login")
       .send({ email: userInfo.email, password: "wrong_password" })
-      .expect(401);
+      .expect(400);
     expect(wrongPasswordRes.body.code).toBe("AUTH_INVALID_CREDENTIALS");
   });
 });

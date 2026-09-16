@@ -75,3 +75,5 @@ export interface LoginRequest {
   password: string;
   rememberMe?: boolean;
 }
+
+export const REAUTH_REQUIRED_CODES = ["AUTH_UNAUTHORIZED"] as const;

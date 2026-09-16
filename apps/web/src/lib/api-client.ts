@@ -1,32 +1,38 @@
+import type { APIError } from "@repo/types";
+import { REAUTH_REQUIRED_CODES } from "@repo/types";
 import axios from "axios";
 import { useAuthStore } from "@/lib/store";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
 export const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+  baseURL: `/api`,
   timeout: 10_000,
 });
 
-apiClient.interceptors.request.use(
-  (config) => {
-    const { token } = useAuthStore.getState();
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+// apiClient.interceptors.request.use(
+//   (config) => {
+//     const { token } = useAuthStore.getState();
+//     if (token) {
+//       config.headers["Authorization"] = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   },
+// );
+const needsReauth = new Set<string>(REAUTH_REQUIRED_CODES);
 
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const code = (error.response?.data as Partial<APIError> | undefined)?.code;
+
+    if (code && needsReauth.has(code)) {
       useAuthStore.getState().clearAuth();
-      // TODO: 跳转登录页
+      const { pathname, search } = window.location;
+      const from = pathname.startsWith("/login") ? "/" : pathname + search;
+
+      window.location.href = `/login?redirect=${encodeURIComponent(from)}`;
     }
     return Promise.reject(error);
   },

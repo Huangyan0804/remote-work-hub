@@ -1,6 +1,6 @@
-import { HttpException, HttpStatus } from "@nestjs/common";
+import { HttpException } from "@nestjs/common";
 import type { APIErrorDetail } from "@repo/types";
-import { ErrorCode } from "../errors/error-code";
+import { ERROR_STATUS, ErrorCode } from "../errors/error-code";
 
 /**
  * 业务异常基类：把错误码固化为响应契约的一部分。
@@ -13,11 +13,9 @@ export class AppException extends HttpException {
 
   constructor(
     readonly code: ErrorCode,
-    status: HttpStatus,
     options?: { message?: string; details?: APIErrorDetail[] },
   ) {
-    // message 默认取调试描述表；响应里真正给前端用的是 code。
-    super({ code, message: options?.message }, status);
+    super({ code, message: options?.message }, ERROR_STATUS[code]);
     this.details = options?.details;
   }
 }
