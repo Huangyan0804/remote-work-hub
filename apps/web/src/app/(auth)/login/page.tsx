@@ -55,9 +55,9 @@ export default function Login() {
     <>
       <div className="flex flex-col gap-1.5">
         <h1 className="text-balance font-semibold text-foreground text-xl">
-          欢迎回来
+          {t("login.heading")}
         </h1>
-        <p className="text-foreground text-sm">登录以继续你的远程工作台</p>
+        <p className="text-foreground text-sm">{t("login.subtitle")}</p>
       </div>
       <Card className="w-full p-4 sm:max-w-md">
         <CardContent className="p-4">
@@ -81,7 +81,7 @@ export default function Login() {
                       htmlFor="form-login-email"
                       aria-required
                     >
-                      邮箱
+                      {t("login.email")}
                       <span className="text-destructive">*</span>
                     </FieldLabel>
                     <InputGroup>
@@ -117,7 +117,7 @@ export default function Login() {
                       htmlFor="form-login-password"
                       aria-required
                     >
-                      密码
+                      {t("login.password")}
                       <span className="text-destructive">*</span>
                     </FieldLabel>
                     <InputGroup>
@@ -137,7 +137,11 @@ export default function Login() {
                           type="button"
                           variant="ghost"
                           size="icon"
-                          aria-label={showPassword ? "隐藏密码" : "显示密码"}
+                          aria-label={
+                            showPassword
+                              ? t("login.hidePassword")
+                              : t("login.showPassword")
+                          }
                         >
                           {showPassword ? <EyeOff /> : <Eye />}
                         </Button>
@@ -162,10 +166,12 @@ export default function Login() {
               >
                 <div className="inline-flex items-center gap-2">
                   <Checkbox id="remember" />
-                  <FieldLabel htmlFor="remember">记住我</FieldLabel>
+                  <FieldLabel htmlFor="remember">
+                    {t("login.remember")}
+                  </FieldLabel>
                 </div>
                 <Button variant="link" className="underline">
-                  忘记密码？
+                  {t("login.forgot")}
                 </Button>
               </Field>
 
@@ -177,7 +183,7 @@ export default function Login() {
                 disabled={isPending}
               >
                 {isPending && <Spinner data-icon="inline-start" />}
-                登录
+                {t("login.submit")}
               </Button>
             </FieldGroup>
           </form>
@@ -185,18 +191,20 @@ export default function Login() {
       </Card>
       <div className="flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-muted-foreground text-xs">或</span>
+        <span className="text-muted-foreground text-xs">{t("login.or")}</span>
         <Separator className="flex-1" />
       </div>
       <Button size="lg" variant="outline">
         <KeyRound data-icon="inline-start" />
-        <span>使用SSO登录</span>
+        <span>{t("login.sso")}</span>
       </Button>
 
       <div className="inline-flex items-center justify-center">
-        <span className="text-muted-foreground text-xs">还没有账号？</span>
+        <span className="text-muted-foreground text-xs">
+          {t("login.noAccount")}
+        </span>
         <Button variant="link" className="p-0 text-[13px] underline">
-          立即注册
+          {t("login.register")}
         </Button>
       </div>
     </>

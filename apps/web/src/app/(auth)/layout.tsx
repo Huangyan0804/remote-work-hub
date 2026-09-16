@@ -1,8 +1,11 @@
+import { getT } from "next-i18next/server";
 import { LogoMark } from "@/components/icons/logo-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import AuthAside from "./_components/auth-aside";
 
-export default function AuthLayout({ children }: LayoutProps<"/">) {
+export default async function AuthLayout({ children }: LayoutProps<"/">) {
+  const { t } = await getT("common");
+
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[40%_minmax(0,1fr)]">
       <AuthAside />
@@ -11,14 +14,14 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
           <div className="flex items-center justify-between gap-3">
             <span className="inline-flex items-center gap-2">
               <LogoMark />
-              <span className="font-semibold text-sm">远程协作工作台</span>
+              <span className="font-semibold text-sm">{t("app.name")}</span>
             </span>
             <ThemeToggle />
           </div>
           {children}
           <div className="inline-flex items-center justify-center">
             <span className="text-muted-foreground text-xs tabular-nums">
-              远程协作工作台 · v1.0
+              {t("app.name")} · {t("app.version")}
             </span>
           </div>
         </div>

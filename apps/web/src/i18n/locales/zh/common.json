@@ -1,4 +1,12 @@
 {
+  "app": {
+    "name": "远程协作工作台",
+    "version": "v1.0",
+    "description": "远程协作工作台"
+  },
+  "theme": {
+    "toggle": "切换亮暗主题"
+  },
   "health": {
     "title": "后端健康检查"
   }
