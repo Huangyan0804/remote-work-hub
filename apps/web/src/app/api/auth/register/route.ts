@@ -1,4 +1,4 @@
-import type { LoginRequest } from "@repo/types";
+import type { RegisterRequest } from "@repo/types";
 import { NextResponse } from "next/server";
 import {
   SESSION_COOKIE,
@@ -7,7 +7,7 @@ import {
 } from "@/lib/session";
 
 export async function POST(req: Request) {
-  const body = (await req.json()) as LoginRequest;
+  const body = (await req.json()) as RegisterRequest;
 
   const upstream = await fetch(
     `${process.env.API_BASE_URL}/api/auth/register`,
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
   // 成功：token 关进 cookie，只把 user 给浏览器
   const res = NextResponse.json({ user: data.user });
-  const remember = body.rememberMe ?? false;
+  const remember = false;
 
   res.cookies.set(
     SESSION_COOKIE,

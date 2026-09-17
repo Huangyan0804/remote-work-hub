@@ -8,18 +8,6 @@ export const apiClient = axios.create({
   timeout: 10_000,
 });
 
-// apiClient.interceptors.request.use(
-//   (config) => {
-//     const { token } = useAuthStore.getState();
-//     if (token) {
-//       config.headers["Authorization"] = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   },
-// );
 const needsReauth = new Set<string>(REAUTH_REQUIRED_CODES);
 
 apiClient.interceptors.response.use(

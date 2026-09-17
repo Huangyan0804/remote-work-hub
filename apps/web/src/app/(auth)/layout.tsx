@@ -12,9 +12,9 @@ export default async function AuthLayout({ children }: LayoutProps<"/">) {
       <section className="flex h-dvh items-start justify-center overflow-y-auto overscroll-contain px-6 py-10">
         <div className="flex w-full max-w-100 flex-col gap-5">
           <div className="flex items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-2">
+            <span className="inline-flex items-center gap-2 font-semibold text-sm">
               <LogoMark />
-              <span className="font-semibold text-sm">{t("app.name")}</span>
+              <span>{t("app.name")}</span>
             </span>
             <ThemeToggle />
           </div>

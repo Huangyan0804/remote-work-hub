@@ -77,3 +77,9 @@ export interface LoginRequest {
 }
 
 export const REAUTH_REQUIRED_CODES = ["AUTH_UNAUTHORIZED"] as const;
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}

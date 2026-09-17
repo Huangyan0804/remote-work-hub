@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { LoginRequest } from "@repo/types";
+import type { RegisterRequest } from "@repo/types";
 import {
   Eye,
   EyeOff,
@@ -10,12 +10,12 @@ import {
   Lock,
   Mail,
   TriangleAlert,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import { useT } from "next-i18next/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -35,53 +35,65 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { getErrorMessage } from "@/lib/get-error-message";
-import { useLogin } from "../hooks";
+import { useRegister } from "../hooks";
 
-const formSchema = z.object({
-  email: z.email("validation.email"),
-  password: z.string().min(1, "validation.password"),
-  rememberMe: z.boolean(),
-}) satisfies z.ZodType<LoginRequest>;
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "validation.name")
+      .min(2, "validation.nameLength")
+      .max(20, "validation.nameLength"),
+    email: z.email("validation.email"),
+    password: z
+      .string()
+      .min(1, "validation.password")
+      .min(8, "validation.passwordLength")
+      .max(72, "validation.passwordLength"),
+    confirmPassword: z.string().min(1, "validation.confirmPassword"),
+    policy: z.boolean().refine((value) => value, "validation.policy"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "validation.passwordMatch",
+    path: ["confirmPassword"],
+  }) satisfies z.ZodType<RegisterRequest>;
 
-export default function Login() {
+export default function Register() {
   const { t } = useT("auth");
   const { t: tErrors } = useT("errors");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const loginForm = useForm<z.infer<typeof formSchema>>({
+  const registerForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
-      rememberMe: false,
+      confirmPassword: "",
+      policy: false,
     },
   });
 
-  const { login, isError, isPending, error } = useLogin();
+  const { register, isError, isPending, error } = useRegister();
 
   const onSubmit = (form: z.infer<typeof formSchema>) => {
-    login(form);
+    register({ name: form.name, email: form.email, password: form.password });
   };
-
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("redirect")) return;
-    toast.info(tErrors("AUTH_UNAUTHORIZED"), {
-      id: "session-expired",
-      duration: 10_000,
-    });
-  }, [tErrors]);
 
   return (
     <>
       <div className="flex flex-col gap-1.5">
         <h1 className="text-balance font-semibold text-foreground text-xl">
-          {t("login.heading")}
+          {t("register.heading")}
         </h1>
-        <p className="text-foreground text-sm">{t("login.subtitle")}</p>
+        <p className="text-foreground text-sm">{t("register.subtitle")}</p>
       </div>
       <Card className="w-full p-4 sm:max-w-md">
         <CardContent className="p-4">
-          <form id="form-login" onSubmit={loginForm.handleSubmit(onSubmit)}>
+          <form
+            id="form-register"
+            onSubmit={registerForm.handleSubmit(onSubmit)}
+          >
             <FieldGroup className="gap-4">
               {isError ? (
                 <Alert className="border-error bg-error-surface text-error">
@@ -93,20 +105,57 @@ export default function Login() {
               ) : null}
 
               <Controller
-                name="email"
-                control={loginForm.control}
+                name="name"
+                control={registerForm.control}
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel
                       className="inline-flex items-center gap-1.5"
-                      htmlFor="form-login-email"
+                      htmlFor="form-register-name"
+                    >
+                      {t("form.name")}
+                      <span className="text-destructive">*</span>
+                    </FieldLabel>
+                    <InputGroup>
+                      <InputGroupInput
+                        id="form-register-name"
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        disabled={isPending}
+                        autoComplete="name"
+                      />
+                      <InputGroupAddon align="inline-start">
+                        <User />
+                      </InputGroupAddon>
+                    </InputGroup>
+
+                    {fieldState.invalid && (
+                      <FieldError>
+                        <p className="inline-flex items-center gap-1 text-xs">
+                          <Info className="size-3" />
+                          <span>{t(fieldState.error?.message as string)}</span>
+                        </p>
+                      </FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="email"
+                control={registerForm.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel
+                      className="inline-flex items-center gap-1.5"
+                      htmlFor="form-register-email"
                     >
                       {t("form.email")}
                       <span className="text-destructive">*</span>
                     </FieldLabel>
                     <InputGroup>
                       <InputGroupInput
-                        id="form-login-email"
+                        id="form-register-email"
                         {...field}
                         aria-invalid={fieldState.invalid}
                         disabled={isPending}
@@ -130,24 +179,24 @@ export default function Login() {
               />
               <Controller
                 name="password"
-                control={loginForm.control}
+                control={registerForm.control}
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel
                       className="inline-flex items-center gap-1.5"
-                      htmlFor="form-login-password"
+                      htmlFor="form-register-password"
                     >
                       {t("form.password")}
                       <span className="text-destructive">*</span>
                     </FieldLabel>
                     <InputGroup>
                       <InputGroupInput
-                        id="form-login-password"
+                        id="form-register-password"
                         type={showPassword ? "text" : "password"}
                         {...field}
                         aria-invalid={fieldState.invalid}
                         disabled={isPending}
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                       />
                       <InputGroupAddon align="inline-start">
                         <Lock />
@@ -183,39 +232,89 @@ export default function Login() {
                 )}
               />
               <Controller
-                control={loginForm.control}
-                name="rememberMe"
-                render={({ field }) => (
+                name="confirmPassword"
+                control={registerForm.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel
+                      className="inline-flex items-center gap-1.5"
+                      htmlFor="form-register-confirm-password"
+                    >
+                      {t("form.confirmPassword")}
+                      <span className="text-destructive">*</span>
+                    </FieldLabel>
+                    <InputGroup>
+                      <InputGroupInput
+                        id="form-register-confirm-password"
+                        type="password"
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        disabled={isPending}
+                        autoComplete="new-password"
+                      />
+                      <InputGroupAddon align="inline-start">
+                        <Lock />
+                      </InputGroupAddon>
+                    </InputGroup>
+
+                    {fieldState.invalid && (
+                      <FieldError>
+                        <p className="inline-flex items-center gap-1 text-xs">
+                          <Info className="size-3" />
+                          <span>{t(fieldState.error?.message as string)}</span>
+                        </p>
+                      </FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={registerForm.control}
+                name="policy"
+                render={({ field, fieldState }) => (
                   <Field
-                    className="inline-flex items-center justify-between"
-                    orientation="horizontal"
+                    className="inline-flex justify-center"
+                    orientation="vertical"
                   >
                     <div className="inline-flex items-center gap-2">
                       <Checkbox
-                        id="remember"
+                        id="policy"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
-                      <FieldLabel htmlFor="remember">
-                        {t("form.remember")}
+                      <FieldLabel htmlFor="policy" className="gap-1">
+                        <span>{t("form.policy")}</span>
+                        <Button variant="link" className="p-0 underline">
+                          {t("form.policyLink")}
+                        </Button>
+                        <span>{t("form.and")}</span>
+                        <Button variant="link" className="p-0 underline">
+                          {t("form.privacyLink")}
+                        </Button>
                       </FieldLabel>
                     </div>
-                    <Button variant="link" className="underline">
-                      {t("form.forgot")}
-                    </Button>
+                    {fieldState.invalid && (
+                      <FieldError>
+                        <p className="inline-flex items-center gap-1 text-xs">
+                          <Info className="size-3" />
+                          <span>{t(fieldState.error?.message as string)}</span>
+                        </p>
+                      </FieldError>
+                    )}
                   </Field>
                 )}
               />
 
               <Button
                 type="submit"
-                form="form-login"
+                form="form-register"
                 size="lg"
                 className="w-full"
                 disabled={isPending}
               >
                 {isPending && <Spinner data-icon="inline-start" />}
-                {t("form.loginSubmit")}
+                {t("form.registerSubmit")}
               </Button>
             </FieldGroup>
           </form>
@@ -233,10 +332,10 @@ export default function Login() {
 
       <div className="inline-flex items-center justify-center">
         <span className="text-muted-foreground text-xs">
-          {t("form.noAccount")}
+          {t("form.hasAccount")}
         </span>
         <Button variant="link" className="p-0 text-[13px] underline">
-          <Link href="/register">{t("form.toRegister")}</Link>
+          <Link href="/login">{t("form.toLogin")}</Link>
         </Button>
       </div>
     </>
