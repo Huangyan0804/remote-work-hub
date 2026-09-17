@@ -2,8 +2,25 @@ import { EncryptJWT, jwtDecrypt } from "jose";
 
 export const SESSION_COOKIE = "rh_session";
 
-// .env.local 里的 base64 密钥，解出 32 字节
-const key = Buffer.from(process.env.SESSION_SECRET ?? "", "base64");
+function decodeBase64(value: string): Uint8Array {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+const rawSecret = process.env.SESSION_SECRET;
+if (!rawSecret) {
+  throw new Error("SESSION_SECRET 未配置（apps/web/.env.local）");
+}
+
+// alg=dir + enc=A256GCM 要求密钥正好 32 字节，长度不对现在就炸，别等第一次登录
+const key = decodeBase64(rawSecret);
+if (key.length !== 32) {
+  throw new Error(`SESSION_SECRET 解码后应为 32 字节，实际 ${key.length} 字节`);
+}
 
 export interface SessionPayload {
   accessToken: string;
