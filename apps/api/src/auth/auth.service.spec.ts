@@ -7,6 +7,7 @@ import { AppException } from "../common/exceptions/app.exception";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
+import { hashRefreshToken } from "./refresh-token.util";
 
 describe("AuthService", () => {
   let service: AuthService;
@@ -22,9 +23,11 @@ describe("AuthService", () => {
     },
     refreshToken: {
       create: jest.fn(),
+      update: jest.fn(),
       updateMany: jest.fn(),
       findUnique: jest.fn(),
     },
+    $transaction: jest.fn(),
   };
   const jwtServiceMock = {
     signAsync: jest.fn(),
@@ -35,6 +38,8 @@ describe("AuthService", () => {
   };
   beforeEach(async () => {
     jest.clearAllMocks();
+    // 轮换是包在 $transaction 里执行的，默认让它成功；个别用例再覆盖
+    prismaMock.$transaction.mockResolvedValue([]);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -146,6 +151,118 @@ describe("AuthService", () => {
     jwtServiceMock.signAsync.mockResolvedValue("fake-token");
     await expect(service.login(loginDto)).rejects.toMatchObject({
       code: ErrorCode.AUTH_INVALID_CREDENTIALS,
+    });
+  });
+
+  describe("refresh 轮换与重放检测", () => {
+    const userRow = {
+      id: "u1",
+      name: "test",
+      email: "test@example.com",
+      avatarUrl: null,
+      timezone: "Asia/Tokyo",
+      workHoursStart: "09:00",
+      workHoursEnd: "18:00",
+      status: "OFFLINE",
+      focus: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    /** 一条"仍然有效"的 refresh token 记录 */
+    function activeToken() {
+      return {
+        id: "rt1",
+        tokenHash: "hashed-old-token",
+        familyId: "family-1",
+        userId: "u1",
+        revokedAt: null as Date | null,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        createdAt: new Date(),
+      };
+    }
+
+    it("成功轮换：吊销旧记录，并在同一 family 下发新 token", async () => {
+      const record = activeToken();
+      prismaMock.refreshToken.findUnique.mockResolvedValue(record);
+      userServiceMock.findById.mockResolvedValue(userRow);
+      jwtServiceMock.signAsync.mockResolvedValue("new-access-token");
+
+      const result = await service.refresh("raw-old-token");
+
+      expect(result.accessToken).toBe("new-access-token");
+      expect(result.user.id).toBe("u1");
+      expect(result.refreshToken).not.toBe("raw-old-token");
+
+      // 旧记录被标记吊销，而不是删除
+      expect(prismaMock.refreshToken.update).toHaveBeenCalledWith({
+        where: { id: "rt1" },
+        data: { revokedAt: expect.any(Date) },
+      });
+
+      const created = prismaMock.refreshToken.create.mock.calls[0][0];
+      // 落库的是哈希，不是明文
+      expect(created.data.tokenHash).toBe(
+        hashRefreshToken(result.refreshToken),
+      );
+      // 同 family 才能被重放检测一锅端
+      expect(created.data.familyId).toBe("family-1");
+      // 继承原过期时间：不继承的话每轮一次刷新 token 就永不过期
+      expect(created.data.expiresAt).toEqual(record.expiresAt);
+      expect(result.refreshExpiresAt).toBe(record.expiresAt.toISOString());
+    });
+
+    it("重放已吊销的 token：整族吊销", async () => {
+      prismaMock.refreshToken.findUnique.mockResolvedValue({
+        ...activeToken(),
+        revokedAt: new Date(),
+      });
+
+      await expect(service.refresh("replayed-token")).rejects.toMatchObject({
+        code: ErrorCode.AUTH_UNAUTHORIZED,
+      });
+
+      expect(prismaMock.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { familyId: "family-1", revokedAt: null },
+        data: { revokedAt: expect.any(Date) },
+      });
+      expect(prismaMock.refreshToken.create).not.toHaveBeenCalled();
+    });
+
+    it("已过期的 token：整族吊销", async () => {
+      prismaMock.refreshToken.findUnique.mockResolvedValue({
+        ...activeToken(),
+        expiresAt: new Date(Date.now() - 1000),
+      });
+
+      await expect(service.refresh("expired-token")).rejects.toMatchObject({
+        code: ErrorCode.AUTH_UNAUTHORIZED,
+      });
+
+      expect(prismaMock.refreshToken.updateMany).toHaveBeenCalledTimes(1);
+      expect(prismaMock.refreshToken.create).not.toHaveBeenCalled();
+    });
+
+    it("token 不存在：401 且不写库", async () => {
+      prismaMock.refreshToken.findUnique.mockResolvedValue(null);
+
+      await expect(service.refresh("unknown-token")).rejects.toMatchObject({
+        code: ErrorCode.AUTH_UNAUTHORIZED,
+      });
+
+      expect(prismaMock.refreshToken.updateMany).not.toHaveBeenCalled();
+      expect(prismaMock.refreshToken.create).not.toHaveBeenCalled();
+    });
+
+    it("用户已被删除：401 且不发放新 token", async () => {
+      prismaMock.refreshToken.findUnique.mockResolvedValue(activeToken());
+      userServiceMock.findById.mockResolvedValue(null);
+
+      await expect(service.refresh("raw-old-token")).rejects.toMatchObject({
+        code: ErrorCode.AUTH_UNAUTHORIZED,
+      });
+
+      expect(prismaMock.refreshToken.create).not.toHaveBeenCalled();
     });
   });
 });

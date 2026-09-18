@@ -1,6 +1,7 @@
 import type { APIError } from "@repo/types";
 import { REAUTH_REQUIRED_CODES } from "@repo/types";
 import axios from "axios";
+import { hardRedirect } from "@/lib/navigate";
 import { useAuthStore } from "@/lib/store";
 
 export const apiClient = axios.create({
@@ -20,7 +21,7 @@ apiClient.interceptors.response.use(
       const { pathname, search } = window.location;
       const from = pathname.startsWith("/login") ? "/" : pathname + search;
 
-      window.location.href = `/login?redirect=${encodeURIComponent(from)}`;
+      hardRedirect(`/login?redirect=${encodeURIComponent(from)}`);
     }
     return Promise.reject(error);
   },

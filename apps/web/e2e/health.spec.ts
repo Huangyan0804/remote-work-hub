@@ -6,6 +6,16 @@ test("首页经真实链路展示后端健康状态，且可手动刷新", async
     if (req.url().includes("/api/health")) healthRequests.push(req.url());
   });
 
+  // 路由守卫上线后，未登录访问 / 会被送去登录页 —— 先建号拿会话
+  const registered = await page.request.post("/api/auth/register", {
+    data: {
+      name: "健康检查用户",
+      email: `e2e-health-${Date.now()}@example.com`,
+      password: "Passw0rd!23",
+    },
+  });
+  expect(registered.ok()).toBe(true);
+
   await page.goto("/");
 
   // 浏览器里真实渲染出的三处状态

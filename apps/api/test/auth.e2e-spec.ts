@@ -130,4 +130,96 @@ describe("AuthController (e2e)", () => {
       .expect(400);
     expect(wrongPasswordRes.body.code).toBe("AUTH_INVALID_CREDENTIALS");
   });
+
+  // 每个用例自带独立账号，避免 refresh token 互相影响
+  async function registerOnce() {
+    const name = Date.now();
+    const res = await request(app.getHttpServer())
+      .post("/api/auth/register")
+      .send({
+        name: `r${name}`,
+        email: `refresh${name}@test.com`,
+        password: "12345678",
+      })
+      .expect(201);
+    return res.body as {
+      accessToken: string;
+      refreshToken: string;
+      refreshExpiresAt: string;
+      user: { id: string; email: string };
+    };
+  }
+
+  it("refresh 轮换：旧 token 失效，新 token 可用且不续命", async () => {
+    const registered = await registerOnce();
+
+    const refreshed = await request(app.getHttpServer())
+      .post("/api/auth/refresh")
+      .send({ refreshToken: registered.refreshToken })
+      .expect(200);
+
+    expect(refreshed.body.refreshToken).toEqual(expect.any(String));
+    expect(refreshed.body.refreshToken).not.toBe(registered.refreshToken);
+    // 轮换不能延长有效期，否则 refresh token 等于永不过期
+    expect(refreshed.body.refreshExpiresAt).toBe(registered.refreshExpiresAt);
+
+    // 新 access token 立刻能用
+    const meRes = await request(app.getHttpServer())
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${refreshed.body.accessToken}`)
+      .expect(200);
+    expect(meRes.body.id).toBe(registered.user.id);
+  });
+
+  it("重放旧 refresh token：返回 401 并连带吊销整族", async () => {
+    const registered = await registerOnce();
+
+    const refreshed = await request(app.getHttpServer())
+      .post("/api/auth/refresh")
+      .send({ refreshToken: registered.refreshToken })
+      .expect(200);
+
+    // 旧 token 已吊销，再用一次就是重放
+    const replayed = await request(app.getHttpServer())
+      .post("/api/auth/refresh")
+      .send({ refreshToken: registered.refreshToken })
+      .expect(401);
+    expect(replayed.body.code).toBe("AUTH_UNAUTHORIZED");
+
+    // 重放意味着 token 可能已泄漏 → 同族全部作废，刚换到的新 token 也不能用了
+    const afterReplay = await request(app.getHttpServer())
+      .post("/api/auth/refresh")
+      .send({ refreshToken: refreshed.body.refreshToken })
+      .expect(401);
+    expect(afterReplay.body.code).toBe("AUTH_UNAUTHORIZED");
+  });
+
+  it("logout 后再拿 refresh token 换新会被拒", async () => {
+    const registered = await registerOnce();
+
+    await request(app.getHttpServer())
+      .post("/api/auth/logout")
+      .send({ refreshToken: registered.refreshToken })
+      .expect(204);
+
+    const res = await request(app.getHttpServer())
+      .post("/api/auth/refresh")
+      .send({ refreshToken: registered.refreshToken })
+      .expect(401);
+    expect(res.body.code).toBe("AUTH_UNAUTHORIZED");
+  });
+
+  it("refresh token 不存在或为空时返回 401 / 400", async () => {
+    const notFoundRes = await request(app.getHttpServer())
+      .post("/api/auth/refresh")
+      .send({ refreshToken: "not-a-real-token" })
+      .expect(401);
+    expect(notFoundRes.body.code).toBe("AUTH_UNAUTHORIZED");
+
+    const emptyRes = await request(app.getHttpServer())
+      .post("/api/auth/refresh")
+      .send({ refreshToken: "" })
+      .expect(400);
+    expect(emptyRes.body.code).toBe("COMMON_VALIDATION_FAILED");
+  });
 });

@@ -75,22 +75,22 @@
 - [x] 会话 Cookie 加解密（`lib/session.ts`，JWE AES-256-GCM）与「记住我」（有 `maxAge` 为持久 Cookie，否则关浏览器失效）
 - [x] axios 拦截器：按业务码 `REAUTH_REQUIRED_CODES` 清登录态并跳转 `/login?redirect=...`（不用 401 判断）
 - [x] Zustand 持久化用户信息（`lib/store.ts`，**不存 token**）
-- [ ] 注册页面 `(auth)/register`（路由组与 hooks 已就绪，页面待补）
-- [ ] 全站路由守卫（当前依赖 BFF 返回 `AUTH_UNAUTHORIZED` 触发跳转，未做主动拦截）
+- [x] 注册页面 `(auth)/register`（路由组与 hooks 已就绪，页面待补）
+- [x] 全站路由守卫（`src/proxy.ts`，Edge 侧解密会话 Cookie 主动拦截，未登录访问受保护页带 `redirect` 回跳）
 
 ### 测试任务（自动化，复用 T1–T7 环境）
 
 - [x] `AuthService` 单测：register 成功 / 邮箱已存在；login 成功 / 密码错误 / 用户不存在（mock Prisma）
 - [x] API e2e（supertest）：register → login → `GET /api/auth/me` 全流程；无 token / 错 token 返回 401 且 `code = AUTH_UNAUTHORIZED`；重复邮箱 409；非法 payload 400
-- [ ] `refresh` 轮换与重放检测单测 / e2e（当前 `auth.e2e-spec.ts` 未覆盖）
-- [ ] 前端 RTL：登录表单校验与提交；MSW 模拟会话失效时清除登录态并跳转
-- [ ] Playwright 真链路：登录 → 刷新保持登录 → 退出后再访问受保护页被重定向
+- [x] `refresh` 轮换与重放检测单测 / e2e（单测：轮换 / 重放整族吊销 / 过期 / 不存在 / 用户已删；e2e：轮换后不续命、重放连坐、logout 后失效）
+- [x] 前端 RTL：登录 / 注册表单校验与提交、`get-error-message`、401 拦截器清登录态并跳转（`apps/web/src/**/*.test.tsx`，30 例）
+- [x] Playwright 真链路：注册 → 登录 → 刷新保持登录 → 退出后再访问受保护页被重定向；路由守卫（含 `redirect` 回跳与站外地址归一化）
 
 ### 验收
 
 - [x] 注册 → 登录 → 刷新页面保持登录态（Cookie 续期）→ 访问 `/api/auth/me` 返回正确用户信息
 - [x] 会话失效后请求受保护接口被清 Cookie 并跳回登录页，登录成功后回跳原地址
-- [ ] 注册页可用
+- [x] 注册页可用
 
 ---
 
