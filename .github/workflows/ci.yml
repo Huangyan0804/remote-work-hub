@@ -12,6 +12,7 @@ concurrency:
 
 env:
   TURBO_CACHE_DIR: ${{ github.workspace }}/.turbo
+  SESSION_SECRET: ue8ZW4Ep4DlN9Vxb5YUMKms3QW74G2Bhm3bLhUTRuqs=
 
 jobs:
   quality:
