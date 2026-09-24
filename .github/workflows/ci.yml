@@ -48,7 +48,6 @@ jobs:
     name: API 集成测试（真库）
     runs-on: ubuntu-latest
     services:
-      # GitHub 托管的 Postgres：等价于你本地的 docker compose up
       postgres:
         image: postgres:16-alpine
         env:
@@ -62,17 +61,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     env:
-      # CI 的数据库每个 job 都是全新的，一次用完即弃 → 不需要分开发/测试库
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
-      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/remote_work_hub
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/remote_work_hub
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/remote_work_hub
       JWT_SECRET: e2e-test-jwt-secret
-      # access token 的服务端寿命
       JWT_EXPIRES_IN: 15m
-      # refresh token 的服务端寿命 ：勾选"记住我"
       JWT_REFRESH_DAYS: 30
       JWT_REFRESH_SESSION_DAYS: 1
       SESSION_SECRET: ue8ZW4Ep4DlN9Vxb5YUMKms3QW74G2Bhm3bLhUTRuqs=
+
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -80,5 +78,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter api exec prisma generate
+      - run: pnpm --filter api exec prisma migrate deploy
       - run: pnpm --filter api test:e2e
