@@ -31,6 +31,7 @@ export type StandupMinAggregateOutputType = {
   blockers: string | null
   date: Date | null
   userId: string | null
+  teamId: string | null
 }
 
 export type StandupMaxAggregateOutputType = {
@@ -40,6 +41,7 @@ export type StandupMaxAggregateOutputType = {
   blockers: string | null
   date: Date | null
   userId: string | null
+  teamId: string | null
 }
 
 export type StandupCountAggregateOutputType = {
@@ -49,6 +51,7 @@ export type StandupCountAggregateOutputType = {
   blockers: number
   date: number
   userId: number
+  teamId: number
   _all: number
 }
 
@@ -60,6 +63,7 @@ export type StandupMinAggregateInputType = {
   blockers?: true
   date?: true
   userId?: true
+  teamId?: true
 }
 
 export type StandupMaxAggregateInputType = {
@@ -69,6 +73,7 @@ export type StandupMaxAggregateInputType = {
   blockers?: true
   date?: true
   userId?: true
+  teamId?: true
 }
 
 export type StandupCountAggregateInputType = {
@@ -78,6 +83,7 @@ export type StandupCountAggregateInputType = {
   blockers?: true
   date?: true
   userId?: true
+  teamId?: true
   _all?: true
 }
 
@@ -160,6 +166,7 @@ export type StandupGroupByOutputType = {
   blockers: string | null
   date: Date
   userId: string
+  teamId: string
   _count: StandupCountAggregateOutputType | null
   _min: StandupMinAggregateOutputType | null
   _max: StandupMaxAggregateOutputType | null
@@ -190,7 +197,9 @@ export type StandupWhereInput = {
   blockers?: Prisma.StringNullableFilter<"Standup"> | string | null
   date?: Prisma.DateTimeFilter<"Standup"> | Date | string
   userId?: Prisma.StringFilter<"Standup"> | string
+  teamId?: Prisma.StringFilter<"Standup"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
 }
 
 export type StandupOrderByWithRelationInput = {
@@ -200,7 +209,9 @@ export type StandupOrderByWithRelationInput = {
   blockers?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  teamId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  team?: Prisma.TeamOrderByWithRelationInput
 }
 
 export type StandupWhereUniqueInput = Prisma.AtLeast<{
@@ -213,7 +224,9 @@ export type StandupWhereUniqueInput = Prisma.AtLeast<{
   blockers?: Prisma.StringNullableFilter<"Standup"> | string | null
   date?: Prisma.DateTimeFilter<"Standup"> | Date | string
   userId?: Prisma.StringFilter<"Standup"> | string
+  teamId?: Prisma.StringFilter<"Standup"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
 }, "id">
 
 export type StandupOrderByWithAggregationInput = {
@@ -223,6 +236,7 @@ export type StandupOrderByWithAggregationInput = {
   blockers?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  teamId?: Prisma.SortOrder
   _count?: Prisma.StandupCountOrderByAggregateInput
   _max?: Prisma.StandupMaxOrderByAggregateInput
   _min?: Prisma.StandupMinOrderByAggregateInput
@@ -238,6 +252,7 @@ export type StandupScalarWhereWithAggregatesInput = {
   blockers?: Prisma.StringNullableWithAggregatesFilter<"Standup"> | string | null
   date?: Prisma.DateTimeWithAggregatesFilter<"Standup"> | Date | string
   userId?: Prisma.StringWithAggregatesFilter<"Standup"> | string
+  teamId?: Prisma.StringWithAggregatesFilter<"Standup"> | string
 }
 
 export type StandupCreateInput = {
@@ -247,6 +262,7 @@ export type StandupCreateInput = {
   blockers?: string | null
   date?: Date | string
   user: Prisma.UserCreateNestedOneWithoutStandupsInput
+  team: Prisma.TeamCreateNestedOneWithoutStandupsInput
 }
 
 export type StandupUncheckedCreateInput = {
@@ -256,6 +272,7 @@ export type StandupUncheckedCreateInput = {
   blockers?: string | null
   date?: Date | string
   userId: string
+  teamId: string
 }
 
 export type StandupUpdateInput = {
@@ -265,6 +282,7 @@ export type StandupUpdateInput = {
   blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutStandupsNestedInput
+  team?: Prisma.TeamUpdateOneRequiredWithoutStandupsNestedInput
 }
 
 export type StandupUncheckedUpdateInput = {
@@ -274,6 +292,7 @@ export type StandupUncheckedUpdateInput = {
   blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type StandupCreateManyInput = {
@@ -283,6 +302,7 @@ export type StandupCreateManyInput = {
   blockers?: string | null
   date?: Date | string
   userId: string
+  teamId: string
 }
 
 export type StandupUpdateManyMutationInput = {
@@ -300,6 +320,7 @@ export type StandupUncheckedUpdateManyInput = {
   blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type StandupListRelationFilter = {
@@ -319,6 +340,7 @@ export type StandupCountOrderByAggregateInput = {
   blockers?: Prisma.SortOrder
   date?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  teamId?: Prisma.SortOrder
 }
 
 export type StandupMaxOrderByAggregateInput = {
@@ -328,6 +350,7 @@ export type StandupMaxOrderByAggregateInput = {
   blockers?: Prisma.SortOrder
   date?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  teamId?: Prisma.SortOrder
 }
 
 export type StandupMinOrderByAggregateInput = {
@@ -337,6 +360,7 @@ export type StandupMinOrderByAggregateInput = {
   blockers?: Prisma.SortOrder
   date?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  teamId?: Prisma.SortOrder
 }
 
 export type StandupCreateNestedManyWithoutUserInput = {
@@ -381,12 +405,55 @@ export type StandupUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.StandupScalarWhereInput | Prisma.StandupScalarWhereInput[]
 }
 
+export type StandupCreateNestedManyWithoutTeamInput = {
+  create?: Prisma.XOR<Prisma.StandupCreateWithoutTeamInput, Prisma.StandupUncheckedCreateWithoutTeamInput> | Prisma.StandupCreateWithoutTeamInput[] | Prisma.StandupUncheckedCreateWithoutTeamInput[]
+  connectOrCreate?: Prisma.StandupCreateOrConnectWithoutTeamInput | Prisma.StandupCreateOrConnectWithoutTeamInput[]
+  createMany?: Prisma.StandupCreateManyTeamInputEnvelope
+  connect?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+}
+
+export type StandupUncheckedCreateNestedManyWithoutTeamInput = {
+  create?: Prisma.XOR<Prisma.StandupCreateWithoutTeamInput, Prisma.StandupUncheckedCreateWithoutTeamInput> | Prisma.StandupCreateWithoutTeamInput[] | Prisma.StandupUncheckedCreateWithoutTeamInput[]
+  connectOrCreate?: Prisma.StandupCreateOrConnectWithoutTeamInput | Prisma.StandupCreateOrConnectWithoutTeamInput[]
+  createMany?: Prisma.StandupCreateManyTeamInputEnvelope
+  connect?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+}
+
+export type StandupUpdateManyWithoutTeamNestedInput = {
+  create?: Prisma.XOR<Prisma.StandupCreateWithoutTeamInput, Prisma.StandupUncheckedCreateWithoutTeamInput> | Prisma.StandupCreateWithoutTeamInput[] | Prisma.StandupUncheckedCreateWithoutTeamInput[]
+  connectOrCreate?: Prisma.StandupCreateOrConnectWithoutTeamInput | Prisma.StandupCreateOrConnectWithoutTeamInput[]
+  upsert?: Prisma.StandupUpsertWithWhereUniqueWithoutTeamInput | Prisma.StandupUpsertWithWhereUniqueWithoutTeamInput[]
+  createMany?: Prisma.StandupCreateManyTeamInputEnvelope
+  set?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  disconnect?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  delete?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  connect?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  update?: Prisma.StandupUpdateWithWhereUniqueWithoutTeamInput | Prisma.StandupUpdateWithWhereUniqueWithoutTeamInput[]
+  updateMany?: Prisma.StandupUpdateManyWithWhereWithoutTeamInput | Prisma.StandupUpdateManyWithWhereWithoutTeamInput[]
+  deleteMany?: Prisma.StandupScalarWhereInput | Prisma.StandupScalarWhereInput[]
+}
+
+export type StandupUncheckedUpdateManyWithoutTeamNestedInput = {
+  create?: Prisma.XOR<Prisma.StandupCreateWithoutTeamInput, Prisma.StandupUncheckedCreateWithoutTeamInput> | Prisma.StandupCreateWithoutTeamInput[] | Prisma.StandupUncheckedCreateWithoutTeamInput[]
+  connectOrCreate?: Prisma.StandupCreateOrConnectWithoutTeamInput | Prisma.StandupCreateOrConnectWithoutTeamInput[]
+  upsert?: Prisma.StandupUpsertWithWhereUniqueWithoutTeamInput | Prisma.StandupUpsertWithWhereUniqueWithoutTeamInput[]
+  createMany?: Prisma.StandupCreateManyTeamInputEnvelope
+  set?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  disconnect?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  delete?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  connect?: Prisma.StandupWhereUniqueInput | Prisma.StandupWhereUniqueInput[]
+  update?: Prisma.StandupUpdateWithWhereUniqueWithoutTeamInput | Prisma.StandupUpdateWithWhereUniqueWithoutTeamInput[]
+  updateMany?: Prisma.StandupUpdateManyWithWhereWithoutTeamInput | Prisma.StandupUpdateManyWithWhereWithoutTeamInput[]
+  deleteMany?: Prisma.StandupScalarWhereInput | Prisma.StandupScalarWhereInput[]
+}
+
 export type StandupCreateWithoutUserInput = {
   id?: string
   yesterday: string
   today: string
   blockers?: string | null
   date?: Date | string
+  team: Prisma.TeamCreateNestedOneWithoutStandupsInput
 }
 
 export type StandupUncheckedCreateWithoutUserInput = {
@@ -395,6 +462,7 @@ export type StandupUncheckedCreateWithoutUserInput = {
   today: string
   blockers?: string | null
   date?: Date | string
+  teamId: string
 }
 
 export type StandupCreateOrConnectWithoutUserInput = {
@@ -433,6 +501,51 @@ export type StandupScalarWhereInput = {
   blockers?: Prisma.StringNullableFilter<"Standup"> | string | null
   date?: Prisma.DateTimeFilter<"Standup"> | Date | string
   userId?: Prisma.StringFilter<"Standup"> | string
+  teamId?: Prisma.StringFilter<"Standup"> | string
+}
+
+export type StandupCreateWithoutTeamInput = {
+  id?: string
+  yesterday: string
+  today: string
+  blockers?: string | null
+  date?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutStandupsInput
+}
+
+export type StandupUncheckedCreateWithoutTeamInput = {
+  id?: string
+  yesterday: string
+  today: string
+  blockers?: string | null
+  date?: Date | string
+  userId: string
+}
+
+export type StandupCreateOrConnectWithoutTeamInput = {
+  where: Prisma.StandupWhereUniqueInput
+  create: Prisma.XOR<Prisma.StandupCreateWithoutTeamInput, Prisma.StandupUncheckedCreateWithoutTeamInput>
+}
+
+export type StandupCreateManyTeamInputEnvelope = {
+  data: Prisma.StandupCreateManyTeamInput | Prisma.StandupCreateManyTeamInput[]
+  skipDuplicates?: boolean
+}
+
+export type StandupUpsertWithWhereUniqueWithoutTeamInput = {
+  where: Prisma.StandupWhereUniqueInput
+  update: Prisma.XOR<Prisma.StandupUpdateWithoutTeamInput, Prisma.StandupUncheckedUpdateWithoutTeamInput>
+  create: Prisma.XOR<Prisma.StandupCreateWithoutTeamInput, Prisma.StandupUncheckedCreateWithoutTeamInput>
+}
+
+export type StandupUpdateWithWhereUniqueWithoutTeamInput = {
+  where: Prisma.StandupWhereUniqueInput
+  data: Prisma.XOR<Prisma.StandupUpdateWithoutTeamInput, Prisma.StandupUncheckedUpdateWithoutTeamInput>
+}
+
+export type StandupUpdateManyWithWhereWithoutTeamInput = {
+  where: Prisma.StandupScalarWhereInput
+  data: Prisma.XOR<Prisma.StandupUpdateManyMutationInput, Prisma.StandupUncheckedUpdateManyWithoutTeamInput>
 }
 
 export type StandupCreateManyUserInput = {
@@ -441,6 +554,7 @@ export type StandupCreateManyUserInput = {
   today: string
   blockers?: string | null
   date?: Date | string
+  teamId: string
 }
 
 export type StandupUpdateWithoutUserInput = {
@@ -449,6 +563,7 @@ export type StandupUpdateWithoutUserInput = {
   today?: Prisma.StringFieldUpdateOperationsInput | string
   blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneRequiredWithoutStandupsNestedInput
 }
 
 export type StandupUncheckedUpdateWithoutUserInput = {
@@ -457,6 +572,7 @@ export type StandupUncheckedUpdateWithoutUserInput = {
   today?: Prisma.StringFieldUpdateOperationsInput | string
   blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  teamId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type StandupUncheckedUpdateManyWithoutUserInput = {
@@ -465,6 +581,43 @@ export type StandupUncheckedUpdateManyWithoutUserInput = {
   today?: Prisma.StringFieldUpdateOperationsInput | string
   blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type StandupCreateManyTeamInput = {
+  id?: string
+  yesterday: string
+  today: string
+  blockers?: string | null
+  date?: Date | string
+  userId: string
+}
+
+export type StandupUpdateWithoutTeamInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  yesterday?: Prisma.StringFieldUpdateOperationsInput | string
+  today?: Prisma.StringFieldUpdateOperationsInput | string
+  blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutStandupsNestedInput
+}
+
+export type StandupUncheckedUpdateWithoutTeamInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  yesterday?: Prisma.StringFieldUpdateOperationsInput | string
+  today?: Prisma.StringFieldUpdateOperationsInput | string
+  blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type StandupUncheckedUpdateManyWithoutTeamInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  yesterday?: Prisma.StringFieldUpdateOperationsInput | string
+  today?: Prisma.StringFieldUpdateOperationsInput | string
+  blockers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -476,7 +629,9 @@ export type StandupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   blockers?: boolean
   date?: boolean
   userId?: boolean
+  teamId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["standup"]>
 
 export type StandupSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -486,7 +641,9 @@ export type StandupSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   blockers?: boolean
   date?: boolean
   userId?: boolean
+  teamId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["standup"]>
 
 export type StandupSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -496,7 +653,9 @@ export type StandupSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   blockers?: boolean
   date?: boolean
   userId?: boolean
+  teamId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["standup"]>
 
 export type StandupSelectScalar = {
@@ -506,23 +665,28 @@ export type StandupSelectScalar = {
   blockers?: boolean
   date?: boolean
   userId?: boolean
+  teamId?: boolean
 }
 
-export type StandupOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "yesterday" | "today" | "blockers" | "date" | "userId", ExtArgs["result"]["standup"]>
+export type StandupOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "yesterday" | "today" | "blockers" | "date" | "userId" | "teamId", ExtArgs["result"]["standup"]>
 export type StandupInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
 }
 export type StandupIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
 }
 export type StandupIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
 }
 
 export type $StandupPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Standup"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    team: Prisma.$TeamPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -531,6 +695,7 @@ export type $StandupPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     blockers: string | null
     date: Date
     userId: string
+    teamId: string
   }, ExtArgs["result"]["standup"]>
   composites: {}
 }
@@ -926,6 +1091,7 @@ readonly fields: StandupFieldRefs;
 export interface Prisma__StandupClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  team<T extends Prisma.TeamDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamDefaultArgs<ExtArgs>>): Prisma.Prisma__TeamClient<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -961,6 +1127,7 @@ export interface StandupFieldRefs {
   readonly blockers: Prisma.FieldRef<"Standup", 'String'>
   readonly date: Prisma.FieldRef<"Standup", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Standup", 'String'>
+  readonly teamId: Prisma.FieldRef<"Standup", 'String'>
 }
     
 

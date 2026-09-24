@@ -8,12 +8,12 @@ import {
 } from "@nestjs/common";
 import type { TokenResponse, User } from "@repo/types";
 import { SkipAuth } from "../common/decorators/skip-auth.decorator";
+import type { JwtPayload } from "../common/interface/jwt-payload.interface";
 import { AuthService } from "./auth.service";
 import { CurrentUser } from "./decorators/current-user.decorator";
 import { LoginDto } from "./dto/login.dto";
 import { RefreshDto } from "./dto/refresh.dto";
 import { RegisterDto } from "./dto/register.dto";
-import type { JwtPayload } from "./interfaces/jwt-payload.interface";
 
 @Controller("auth")
 export class AuthController {

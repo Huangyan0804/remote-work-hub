@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
     "check-types": "tsc --noEmit",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
@@ -54,6 +55,7 @@
     "prisma": "^7.10.0",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.12",
+    "tsx": "^4.23.15",
     "typescript": "6"
   },
   "jest": {

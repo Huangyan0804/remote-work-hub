@@ -6,13 +6,13 @@ import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 import { ErrorCode } from "../common/errors/error-code";
 import { AppException } from "../common/exceptions/app.exception";
+import { JwtPayload } from "../common/interface/jwt-payload.interface";
 import { Prisma } from "../generated/prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { toAuthUser, toUser } from "../user/user.mapper";
 import { UserService } from "../user/user.service";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
-import { JwtPayload } from "./interfaces/jwt-payload.interface";
 import { generateRefreshToken, hashRefreshToken } from "./refresh-token.util";
 
 @Injectable()

@@ -83,3 +83,28 @@ export interface RegisterRequest {
   email: string;
   password: string;
 }
+
+export type TeamRole = "OWNER" | "ADMIN" | "MEMBER";
+
+export interface Team {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeamMember {
+  id: string;
+  teamId: string;
+  userId: string;
+  role: TeamRole;
+  joinedAt: string;
+  updatedAt: string;
+}
+
+export interface TeamMemberView extends User {
+  role: TeamRole;
+  teamId: string;
+  userId: string;
+  joinedAt: string;
+}

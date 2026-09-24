@@ -9,6 +9,7 @@ import {
 import type { APIError } from "@repo/types";
 import type { Request, Response } from "express";
 import { ErrorCode } from "../errors/error-code";
+import { toAppException } from "../errors/prisma-error";
 import { AppException } from "../exceptions/app.exception";
 
 // status → 兜底错误码：给那些绕过 AppException 的异常用
@@ -37,11 +38,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(body.statusCode).json(body);
   }
 
-  private toResponseBody(exception: unknown, request: Request): APIError {
+  private toResponseBody(rawException: unknown, request: Request): APIError {
     const base = {
       path: request.url,
       timestamp: new Date().toISOString(),
     };
+
+    // 先归一：Prisma 已知错误（唯一约束 / 外键 / 记录不存在）转成 AppException，
+    // 让"忘了处理数据库错误"的兜底结果是结构化 4xx，而不是分支 3 的裸 500
+    const exception = toAppException(rawException) ?? rawException;
 
     // 分支 1：自己抛的业务异常，code 直接用异常上带的
     if (exception instanceof AppException) {

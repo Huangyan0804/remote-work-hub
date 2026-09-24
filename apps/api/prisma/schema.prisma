@@ -30,6 +30,12 @@ enum TaskPriority {
   HIGH
 }
 
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
 // 用户 = 登录账号 + 个人资料 + 成员状态（合并设计，避免 User/Member 两张冗余表）
 model User {
   id             String       @id @default(cuid())
@@ -48,6 +54,7 @@ model User {
   tasks    Task[]
   standups Standup[]
   refreshTokens RefreshToken[]   // 新增
+  teamMemberships TeamMember[]
 }
 
 model Task {
@@ -63,7 +70,10 @@ model Task {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  @@index([status])
+  teamId String
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId,status])
   @@index([assigneeId])
 }
 
@@ -76,7 +86,10 @@ model Standup {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, date])
+  teamId String
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId,userId, date])
 }
 
 // 刷新令牌：存哈希不存明文；同一登录会话派生出的令牌共享 familyId
@@ -92,4 +105,30 @@ model RefreshToken {
 
   @@index([userId, familyId])
   @@index([expiresAt])
+}
+
+model Team {
+  id String @id @default(cuid())
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members TeamMember[]
+  tasks Task[]
+  standups Standup[]
+}
+
+model TeamMember {
+  id String @id @default(cuid())
+  teamId String
+  userId String
+  role TeamRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
 }

@@ -4,7 +4,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { SKIP_AUTH_KEY } from "../common/decorators/skip-auth.decorator";
 import { ErrorCode } from "../common/errors/error-code";
 import { AppException } from "../common/exceptions/app.exception";
-import type { JwtPayload } from "./interfaces/jwt-payload.interface";
+import type { JwtPayload } from "../common/interface/jwt-payload.interface";
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {

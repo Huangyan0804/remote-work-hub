@@ -100,9 +100,11 @@
 
 ### 后端
 
-- [ ] `TeamModule`：`GET /api/members` 返回成员列表（状态、时区、工作时间段）
-- [ ] `PATCH /api/members/status`：更新当前状态（ONLINE / BUSY / OFF_WORK）与今日焦点
-- [ ] seed 数据：预置 3-5 个不同时区（如 Tokyo / Singapore / San Francisco）的成员
+- [x] `Team` + `TeamMember` 建模（多对多中间表带 `role`，迁移 `20260918092852_add_memberships`）
+- [x] `GET /api/members`：返回同队成员列表（`role`、时区、工作时间段、状态、焦点），不传 `teamId` 时取最早加入的团队，非成员传他人 `teamId` 返回 `TEAM_ACCESS_DENIED`
+- [x] `PATCH /api/members/status`：更新当前状态（ONLINE / BUSY / OFFLINE）
+- [x] `PATCH /api/members/focus`：更新今日焦点（`null` 清空）
+- [x] seed 数据：预置 1 个团队 + 5 名不同时区（Shanghai / Tokyo / Berlin / Los Angeles / Mumbai）成员
 
 ### 前端
 
@@ -112,7 +114,8 @@
 
 ### 测试任务（自动化，复用 T1–T7 环境）
 
-- [ ] API e2e：`GET /api/members` 未鉴权 401、鉴权后返回结构与 seed 数据一致；`PATCH status` 后再次 GET 验证持久化
+- [x] 后端单测：`MemberService`（列表映射 / 非成员 403 / P2025 归一 401 等 8 例）
+- [x] API e2e：`GET /api/members` 未鉴权 401、返回结构含 `role` 且不泄漏 `passwordHash`、非成员 403；`PATCH status` / `focus` 后再次查询验证持久化
 - [ ] 前端 RTL：固定时区（mock `Intl.DateTimeFormat`）下本地时间与重叠高亮渲染正确
 - [ ] Playwright：`/team` 真链路展示多时区成员；改状态后刷新页面仍保持
 

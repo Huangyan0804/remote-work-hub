@@ -7,6 +7,9 @@ export const ErrorCode = {
   AUTH_UNAUTHORIZED: "AUTH_UNAUTHORIZED", // 守卫缺 token / token 无效 / 过期
   COMMON_VALIDATION_FAILED: "COMMON_VALIDATION_FAILED",
   COMMON_INTERNAL_ERROR: "COMMON_INTERNAL_ERROR",
+  COMMON_NOT_FOUND: "COMMON_NOT_FOUND",
+  COMMON_CONFLICT: "COMMON_CONFLICT",
+  TEAM_ACCESS_DENIED: "TEAM_ACCESS_DENIED",
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
@@ -19,4 +22,7 @@ export const ERROR_STATUS: Record<ErrorCode, HttpStatus> = {
   [ErrorCode.AUTH_UNAUTHORIZED]: HttpStatus.UNAUTHORIZED,
   [ErrorCode.COMMON_VALIDATION_FAILED]: HttpStatus.BAD_REQUEST,
   [ErrorCode.COMMON_INTERNAL_ERROR]: HttpStatus.INTERNAL_SERVER_ERROR,
+  [ErrorCode.COMMON_NOT_FOUND]: HttpStatus.NOT_FOUND,
+  [ErrorCode.COMMON_CONFLICT]: HttpStatus.CONFLICT,
+  [ErrorCode.TEAM_ACCESS_DENIED]: HttpStatus.FORBIDDEN,
 };

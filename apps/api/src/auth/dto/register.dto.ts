@@ -9,7 +9,7 @@ import {
 export class RegisterDto {
   @IsString()
   @MinLength(2)
-  @MaxLength(20)
+  @MaxLength(64)
   @IsNotEmpty()
   name: string;
 
