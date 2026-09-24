@@ -72,6 +72,7 @@ jobs:
       # refresh token 的服务端寿命 ：勾选"记住我"
       JWT_REFRESH_DAYS: 30
       JWT_REFRESH_SESSION_DAYS: 1
+      SESSION_SECRET: ue8ZW4Ep4DlN9Vxb5YUMKms3QW74G2Bhm3bLhUTRuqs=
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
